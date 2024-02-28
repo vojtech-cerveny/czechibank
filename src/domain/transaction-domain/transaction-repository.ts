@@ -213,23 +213,12 @@ export async function getAllTransactionsByUserIdForAPI(userId: string) {
         },
       ],
     },
-    // include: {
-    //   from: {
-    //     include: {
-    //       user: true,
-    //     },
-    //   },
-    //   to: {
-    //     include: {
-    //       user: true,
-    //     },
-    //   },
-    // },
     orderBy: {
       createdAt: "desc",
     },
     select: {
       amount: true,
+      id: true,
       createdAt: true,
       currency: true,
       from: {
@@ -258,4 +247,54 @@ export async function getAllTransactionsByUserIdForAPI(userId: string) {
   });
 
   return transactions;
+}
+
+export async function getTransactionDetailById(transactionId: string, userId: string) {
+  const transaction = await prisma.transaction.findUnique({
+    where: {
+      id: transactionId,
+      OR: [
+        {
+          from: {
+            userId: userId,
+          },
+        },
+        {
+          to: {
+            userId: userId,
+          },
+        },
+      ],
+    },
+    include: {
+      from: {
+        select: {
+          balance: false,
+          number: true,
+          currency: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+      to: {
+        select: {
+          balance: false,
+          number: true,
+          currency: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return transaction;
 }
