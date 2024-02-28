@@ -3,7 +3,6 @@ import prisma from "@/lib/db";
 import { errorResponse, successResponse } from "@/lib/response";
 import { generateRandomAvatarConfig } from "@/lib/utils";
 import { Prisma } from "@prisma/client";
-import { redirect } from "next/navigation";
 import { createBankAccount } from "../bankAccount-domain/ba-repository";
 import { processUserSignIn } from "./user-actions";
 import { UserSchema } from "./user-schema";
@@ -35,7 +34,7 @@ export async function registerUser(userData: Omit<Prisma.UserCreateInput, "avata
     });
     await createBankAccount({ userId: prismaUser.id, currency: "CZECHITOKEN" });
     await processUserSignIn({ email: prismaUser.email, password: prismaUser.password });
-    redirect("/");
+    // redirect("/");
 
     return successResponse("User created successfully", prismaUser);
   } catch (e) {
