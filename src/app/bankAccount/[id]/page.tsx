@@ -1,6 +1,7 @@
 import { TransactionTable } from "@/components/transactions/table";
 import { TransactionTranfer } from "@/components/transactions/transfer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Meteors } from "@/components/ui/meteors";
 import { getBankAccountByIdAndUserId } from "@/domain/bankAccount-domain/ba-repository";
 import { getAllUsers } from "@/domain/user-domain/user-repository";
 import { getSession } from "@/lib/auth";
@@ -24,7 +25,8 @@ export default async function BankAccountPage({ params }: { params: { id: string
         <h1 className="my-8 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Your bank account</h1>
         <h2 className="my-8 scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-5xl">{bankAccount.number}</h2>
         <div className="flex flex-row gap-4">
-          <Card className="flex flex-grow flex-col bg-gradient-to-br from-slate-800 to-slate-900 text-white">
+          <Card className="relative flex flex-grow flex-col overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 text-white">
+            <Meteors number={20} />
             <CardHeader className="flex-none">{/* <CardTitle>{bankAccount.currency}</CardTitle> */}</CardHeader>
             <CardContent className="flex flex-grow flex-col justify-end">
               <div className="grow"></div>

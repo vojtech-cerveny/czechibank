@@ -1,6 +1,6 @@
+import { ApiKeyForm } from "@/components/profile/apikey-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserAvatar } from "@/components/user/avatar";
 import { getUserById, regenerateApiKey, regenerateAvatarConfig } from "@/domain/user-domain/user-repository";
@@ -47,12 +47,9 @@ export default async function ProfilePage() {
           <Label>Email</Label>
           <p>{user?.email}</p>
           <div className="flex flex-row items-end space-x-2">
-            <div>
-              <Label>API key</Label>
-              <Input value={user?.apiKey} readOnly />
-            </div>
+            <ApiKeyForm apiKey={user!.apiKey} />
             <form action={handleRegenerateApiKey}>
-              <Button>Generate new API key</Button>
+              <Button variant={"outline"}>Generate new API key</Button>
             </form>
           </div>
         </CardContent>

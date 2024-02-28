@@ -25,6 +25,7 @@
     "@radix-ui/react-toast": "^1.1.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "framer-motion": "^11.0.6",
     "jose": "^5.2.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.323.0",
