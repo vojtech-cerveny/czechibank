@@ -3,6 +3,7 @@ import prisma from "@/lib/db";
 import { errorResponse, successResponse } from "@/lib/response";
 import { Currency } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { CreateTransactionNumberToNumberSchema, CreateTransactionUserIdToUserIdUserSchema } from "./transation-schema";
 
 export async function sendMoneyToUser({
   fromUserId,
@@ -15,20 +16,28 @@ export async function sendMoneyToUser({
   amount: number;
   currency: Currency;
 }) {
-  amount = parseFloat(amount.toFixed(1));
-  if (amount < 0) return errorResponse("Amount must be positive, this incident will be reported");
+  const parsedTransaction = CreateTransactionUserIdToUserIdUserSchema.safeParse({
+    fromUserId,
+    toUserId,
+    amount,
+    currency,
+  });
+
+  if (!parsedTransaction.success) {
+    return errorResponse("Invalid transaction data");
+  }
 
   const fromAccount = await prisma.bankAccount.findFirst({
     where: {
-      userId: fromUserId,
-      currency: currency,
+      userId: parsedTransaction.data.fromUserId,
+      currency: parsedTransaction.data.currency,
     },
   });
 
   const toAccount = await prisma.bankAccount.findFirst({
     where: {
-      userId: toUserId,
-      currency: currency,
+      userId: parsedTransaction.data.toUserId,
+      currency: parsedTransaction.data.currency,
     },
   });
 
@@ -43,8 +52,8 @@ export async function sendMoneyToUser({
   await prisma.$transaction([
     prisma.transaction.create({
       data: {
-        amount: amount,
-        currency: currency,
+        amount: parsedTransaction.data.amount,
+        currency: parsedTransaction.data.currency,
         fromBankId: fromAccount.id,
         toBankId: toAccount.id,
       },
@@ -54,7 +63,7 @@ export async function sendMoneyToUser({
         id: fromAccount.id,
       },
       data: {
-        balance: fromAccount.balance - amount,
+        balance: fromAccount.balance - parsedTransaction.data.amount,
       },
     }),
     prisma.bankAccount.update({
@@ -62,7 +71,7 @@ export async function sendMoneyToUser({
         id: toAccount.id,
       },
       data: {
-        balance: toAccount.balance + amount,
+        balance: toAccount.balance + parsedTransaction.data.amount,
       },
     }),
   ]);
@@ -85,20 +94,30 @@ export async function sendMoneyToBankNumber({
   amount: number;
   currency: Currency;
 }) {
-  amount = parseFloat(amount.toFixed(1));
-  if (amount < 0) return errorResponse("Amount must be positive, this incident will be reported");
+  const parsedTransaction = CreateTransactionNumberToNumberSchema.safeParse({
+    userId,
+    fromBankNumber,
+    toBankNumber,
+    amount,
+    currency,
+  });
+
+  if (!parsedTransaction.success) {
+    return errorResponse("Invalid transaction data");
+  }
+
   const fromAccount = await prisma.bankAccount.findFirst({
     where: {
-      userId: userId,
-      number: fromBankNumber,
-      currency: currency,
+      userId: parsedTransaction.data.userId,
+      number: parsedTransaction.data.fromBankNumber,
+      currency: parsedTransaction.data.currency,
     },
   });
 
   const toAccount = await prisma.bankAccount.findFirst({
     where: {
-      number: toBankNumber,
-      currency: currency,
+      number: parsedTransaction.data.toBankNumber,
+      currency: parsedTransaction.data.currency,
     },
   });
 
@@ -106,15 +125,15 @@ export async function sendMoneyToBankNumber({
     return errorResponse("Bank account not found");
   }
 
-  if (fromAccount.balance < amount) {
+  if (fromAccount.balance < parsedTransaction.data.amount) {
     return errorResponse("Insufficient funds");
   }
 
   const transaction = await prisma.$transaction([
     prisma.transaction.create({
       data: {
-        amount: amount,
-        currency: currency,
+        amount: parsedTransaction.data.amount,
+        currency: parsedTransaction.data.currency,
         fromBankId: fromAccount.id,
         toBankId: toAccount.id,
       },
@@ -124,7 +143,7 @@ export async function sendMoneyToBankNumber({
         id: fromAccount.id,
       },
       data: {
-        balance: fromAccount.balance - amount,
+        balance: fromAccount.balance - parsedTransaction.data.amount,
       },
     }),
     prisma.bankAccount.update({
@@ -132,7 +151,7 @@ export async function sendMoneyToBankNumber({
         id: toAccount.id,
       },
       data: {
-        balance: toAccount.balance + amount,
+        balance: toAccount.balance + parsedTransaction.data.amount,
       },
     }),
   ]);
