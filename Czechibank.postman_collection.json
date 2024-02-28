@@ -1,0 +1,136 @@
+{
+  "info": {
+    "_postman_id": "2012a2f3-1f2e-41e5-8379-5d857975aa01",
+    "name": "Czechibank",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "2294419",
+    "_collection_link": "https://czechitas-api-developers.postman.co/workspace/Czechitas~e9052594-972b-45e0-b6b0-7e7aff2f415f/collection/2294419-2012a2f3-1f2e-41e5-8379-5d857975aa01?action=share&source=collection_link&creator=2294419"
+  },
+  "item": [
+    {
+      "name": "getAllTransactions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/transactions?sortBy=amount&sortOrder=desc&filterBy=fromId&filterValue=",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "transactions"],
+          "query": [
+            {
+              "key": "sortBy",
+              "value": "amount"
+            },
+            {
+              "key": "sortOrder",
+              "value": "desc"
+            },
+            {
+              "key": "filterBy",
+              "value": "fromId"
+            },
+            {
+              "key": "filterValue",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "sendMoney",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"to\": \"ooo\",\n    \"amount\": 900\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/transactions",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "transactions"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getBankAccountInfo",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/bank-account",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "bank-account"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "createUser",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"cssasc@csc.cz\",\n    \"name\": \"Pepa Lavicka\",\n    \"password\": \"s123123123123\",\n    \"sex\": \"MALE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/user/create",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "user", "create"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "mkr8vzzx92",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ]
+}
