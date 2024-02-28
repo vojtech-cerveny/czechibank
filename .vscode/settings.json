@@ -1,0 +1,11 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "driver": "PostgreSQL",
+      "connectString": "postgresql://czechitasBank:czechitasBank@localhost:1111/database?connection_limit=5&pool_timeout=2",
+      "name": "czechitasbank"
+    }
+  ]
+}

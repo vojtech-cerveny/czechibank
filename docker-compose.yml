@@ -1,13 +1,13 @@
 version: "3.8"
 services:
-  template-db:
-    container_name: template-db
+  czechibank:
+    container_name: czechibank-db
     image: postgres:14.1-alpine
     restart: always
     environment:
-      - POSTGRES_USER=littleBunny
-      - POSTGRES_PASSWORD=hopHopHop
+      - POSTGRES_USER=czechitasBank
+      - POSTGRES_PASSWORD=czechitasBank
     ports:
-      - "6543:5432"
+      - "1111:5432"
     volumes:
       - ./data:/var/lib/postgresql/data

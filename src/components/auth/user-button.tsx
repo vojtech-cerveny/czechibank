@@ -1,5 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,21 +5,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { auth } from "../../../auth";
-import { SignIn, SignOut } from "./auth-components";
+import { getUserById } from "@/domain/user-domain/user-repository";
+import { getSession } from "@/lib/auth";
+import Link from "next/link";
+import { Button } from "../ui/button";
+import { UserAvatar } from "../user/avatar";
+import { SignIn } from "./auth-components";
+import { SignOut } from "./sign-out";
 
 export default async function UserButton() {
-  const session = await auth();
+  const session = await getSession();
+
   if (!session?.user) return <SignIn />;
+  const user = await getUserById(session.user.id);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            {session.user.image && <AvatarImage src={session.user.image} alt={session.user.name ?? ""} />}
-            <AvatarFallback>{session.user.email}</AvatarFallback>
-          </Avatar>
-        </Button>
+        <div className="rounded-full border-2 border-solid border-slate-500 hover:border-slate-200">
+          <UserAvatar size={8} userAvatarConfig={user!.avatarConfig} />
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
@@ -31,7 +33,12 @@ export default async function UserButton() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuItem>
-          <SignOut />
+          <Link href="/profile" className="w-full">
+            <Button className="w-full">Profile</Button>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <SignOut className="w-full" />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
