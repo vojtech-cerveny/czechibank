@@ -1,7 +1,6 @@
 import UserButton from "@/components/auth/user-button";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/theme/toggle-button";
-import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -30,9 +29,6 @@ export default function RootLayout({
               <span className="text-2xl font-bold">CzechiBank</span>
             </Link>
             <div className="flex flex-1 items-center justify-end space-x-2 p-2">
-              <Link href={"/register"}>
-                <Button>Register</Button>
-              </Link>
               <ModeToggle />
               <UserButton />
             </div>
