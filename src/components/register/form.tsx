@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { registerUser } from "@/domain/user-domain/user-repository";
 import { UserSchema } from "@/domain/user-domain/user-schema";
 import { Response } from "@/lib/response";
+import { redirect } from "next/navigation";
 import { useState } from "react";
 
 export function RegisterForm() {
@@ -36,6 +37,11 @@ export function RegisterForm() {
   const action: () => void = form.handleSubmit(async (data) => {
     const response = await registerUser(data);
     setServerResponse(response);
+
+    if (response.success) {
+      form.reset();
+    }
+    redirect("/");
   });
 
   return (

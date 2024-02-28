@@ -53,6 +53,7 @@ export function TransactionTranfer({
       toUserId: data.receiverId,
     });
     setServerResponse(response);
+    form.resetField("amount");
   });
   return (
     <div className="flex flex-col gap-4">
