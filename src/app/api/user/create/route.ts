@@ -1,9 +1,9 @@
-export { DELETE, GET, HEAD, OPTIONS, PATCH, PUT, authenticateRequest, handleErrors } from "../../route";
+export { DELETE, GET, HEAD, OPTIONS, PATCH, PUT } from "../../routes";
 
 import { isEmailUnique, registerUser } from "@/domain/user-domain/user-repository";
 import { UserSchema } from "@/domain/user-domain/user-schema";
 import { errorResponse } from "@/lib/response";
-import { handleErrors } from "./route";
+import { handleErrors } from "../../routes";
 
 export async function POST(request: Request) {
   try {

@@ -5,8 +5,8 @@ import {
 import { ErrorResponse, SuccessResponse } from "@/lib/response";
 import { Currency } from "@prisma/client";
 import _ from "lodash";
-import { authenticateRequest, handleErrors } from "../route";
-export { DELETE, HEAD, OPTIONS, PATCH, PUT, handleErrors } from "../route";
+import { authenticateRequest, handleErrors } from "../routes";
+export { DELETE, HEAD, OPTIONS, PATCH, PUT, handleErrors } from "../routes";
 
 type TransactionAPI = {
   amount: number;

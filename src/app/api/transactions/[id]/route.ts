@@ -1,5 +1,5 @@
 import { getTransactionDetailById } from "@/domain/transaction-domain/transaction-repository";
-import { authenticateRequest } from "../../route";
+import { authenticateRequest } from "../../routes";
 
 export { DELETE, HEAD, OPTIONS, PATCH, POST, PUT } from "../route";
 

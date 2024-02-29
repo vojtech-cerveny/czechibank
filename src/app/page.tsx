@@ -26,7 +26,7 @@ export default async function Home() {
   );
 }
 
-export function BankAccountCard({ bankAccount }: { bankAccount: BankAccount }) {
+function BankAccountCard({ bankAccount }: { bankAccount: BankAccount }) {
   return (
     <Card className="w-[350px] duration-300 hover:shadow-md">
       <CardHeader>

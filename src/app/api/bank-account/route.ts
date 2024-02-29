@@ -1,6 +1,6 @@
 import { getBankAccountsByUserId } from "@/domain/bankAccount-domain/ba-repository";
 
-import { DELETE, HEAD, OPTIONS, PATCH, POST, PUT, authenticateRequest, handleErrors } from "../route";
+import { DELETE, HEAD, OPTIONS, PATCH, POST, PUT, authenticateRequest, handleErrors } from "../routes";
 
 export async function GET(request: Request) {
   try {
