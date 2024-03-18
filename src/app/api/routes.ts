@@ -30,22 +30,23 @@ export async function GET(request: Request) {
 }
 
 export async function handleErrors(err: Error) {
+  console.log(err);
   if (err.message === "Bad Request") {
     return new Response(JSON.stringify({ error: "Bad Request" }), { status: 400 });
   } else if (err.message === "Unauthorized") {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   } else {
-    return new Response(JSON.stringify({ error: "Internal problem :O" }), { status: 500 });
+    return new Response(JSON.stringify({ error: "Internal problem :O", message: { err } }), { status: 500 });
   }
 }
 
 export async function authenticateRequest(request: Request): Promise<User> {
   const apiKey = request.headers.get("Authorization")?.split("Bearer ")[1];
-  console.log(apiKey);
   if (!apiKey) {
     throw new Error("Bad Request");
   }
   const user = await getUserByApiKey(apiKey);
+  console.log(user ? "User found" : "User not found");
   if (!user) {
     throw new Error("Unauthorized");
   }

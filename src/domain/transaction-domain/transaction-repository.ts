@@ -103,7 +103,7 @@ export async function sendMoneyToBankNumber({
   });
 
   if (!parsedTransaction.success) {
-    return errorResponse("Invalid transaction data");
+    return errorResponse("Invalid transaction data", { errors: parsedTransaction.error });
   }
 
   const fromAccount = await prisma.bankAccount.findFirst({
@@ -197,7 +197,7 @@ export async function getAllTransactionsByUserId(userId: string) {
   return transactions;
 }
 
-export async function getAllTransactionsByUserIdForAPI(userId: string) {
+export async function getAllTransactionsByUserIdForAPI(userId: string, orderBy: string, order: "asc" | "desc") {
   const transactions = await prisma.transaction.findMany({
     where: {
       OR: [
@@ -214,7 +214,7 @@ export async function getAllTransactionsByUserIdForAPI(userId: string) {
       ],
     },
     orderBy: {
-      createdAt: "desc",
+      [orderBy]: order,
     },
     select: {
       amount: true,

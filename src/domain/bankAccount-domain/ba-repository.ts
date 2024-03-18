@@ -77,3 +77,17 @@ export async function deleteBankAccount(bankAccountId: string) {
 
   return bankAccount;
 }
+
+export async function getAllBankAccounts() {
+  const bankAccounts = await prisma.bankAccount.findMany({
+    select: {
+      number: true,
+      user: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+  return bankAccounts;
+}

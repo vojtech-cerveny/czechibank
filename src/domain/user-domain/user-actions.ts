@@ -2,6 +2,7 @@
 import { encrypt } from "@/lib/auth";
 import { Sex } from "@prisma/client";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { registerUser, signInUser } from "./user-repository";
 
 export async function processUserRegistration(formData: FormData) {
@@ -13,7 +14,9 @@ export async function processUserRegistration(formData: FormData) {
   };
 
   const response = await registerUser(userData);
-
+  if (!response.success) {
+    await processUserSignIn({ email: userData.email, password: userData.password });
+  }
   return response;
 }
 
@@ -28,13 +31,12 @@ export async function processUserSignIn({ email, password }: { email: string; pa
   user.password = "";
   user.apiKey = "";
 
-  const expires = new Date(Date.now() + 60 * 60 * 24 * 1000);
+  const expires = new Date(Date.now() + 60 * 60 * 24 * 10000);
   const session = await encrypt({ user, expires });
 
   // Save the session in a cookie
   cookies().set("session", session, { expires, httpOnly: true });
-
-  return response;
+  redirect("/");
 }
 
 export async function processUserSignOut() {

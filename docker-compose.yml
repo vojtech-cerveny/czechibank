@@ -1,5 +1,15 @@
 version: "3.8"
 services:
+  # web:
+  #   container_name: czechibank
+  #   build: .
+  #   ports:
+  #     - "3344:3000"
+  #   depends_on:
+  #     - czechibank
+  #   environment:
+  #     - DATABASE_URL=postgres://czechitasBank:czechitasBank@czechibank:1111/czechitasBank
+  #     - PRISMA_CLI_BINARY_TARGETS=linux-musl-arm64-openssl-3.0.x
   czechibank:
     container_name: czechibank-db
     image: postgres:14.1-alpine

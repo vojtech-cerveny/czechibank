@@ -5,13 +5,15 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "post:build": "mkdir build/standalone/.next && cp -r public build/standalone/ && cp -r .next/static build/standalone/.next/",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
     "prepare": "husky install",
     "release": "standard-version",
     "prepare:db": "prisma generate & prisma migrate dev",
-    "fill:db": "tsx scripts/prepare-db.ts"
+    "fill:db": "tsx scripts/prepare-db.ts",
+    "postinstall": "prisma generate && npm run prepare:db"
   },
   "dependencies": {
     "@dicebear/collection": "^7.0.4",

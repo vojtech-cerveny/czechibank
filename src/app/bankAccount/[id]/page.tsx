@@ -6,7 +6,6 @@ import { getBankAccountByIdAndUserId } from "@/domain/bankAccount-domain/ba-repo
 import { getAllUsers } from "@/domain/user-domain/user-repository";
 import { getSession } from "@/lib/auth";
 import { RocketIcon } from "lucide-react";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 
 export default async function BankAccountPage({ params }: { params: { id: string } }) {
@@ -32,9 +31,6 @@ export default async function BankAccountPage({ params }: { params: { id: string
           <h2 className="mb-8 inline-block scroll-m-20 bg-gradient-to-r from-pink-600 to-gray-900 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent lg:text-5xl">
             {bankAccount.number}
           </h2>
-          {/* <h2 className="mb-8 scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-5xl">
-            /{bankAccount.number.split("/")[1]}
-          </h2> */}
         </div>
         <div className="flex flex-row gap-4">
           <Card className="relative flex flex-grow flex-col overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -43,10 +39,12 @@ export default async function BankAccountPage({ params }: { params: { id: string
             <CardContent className="flex flex-grow flex-col justify-end">
               <div className="grow"></div>
               <div className="flex-none">
-                <div className="flex scroll-m-20 flex-row items-center justify-end space-x-2 ">
-                  <Image src="/czechitoken-white4.svg" alt="Czechitoken" width={40} height={40} />
-                  <span className="bg-gradient-to-r from-pink-400 to-gray-200 bg-clip-text text-7xl font-extrabold tracking-tight text-transparent lg:text-6xl">
+                <div className="flex scroll-m-20 flex-col items-center justify-end">
+                  <span className="bg-clip-text text-7xl font-extrabold tracking-tight text-transparent text-white lg:text-6xl">
                     {bankAccount.balance.toFixed(1)}
+                  </span>
+                  <span className="bg-clip-text text-4xl font-bold tracking-tight text-transparent text-white lg:text-3xl">
+                    {bankAccount.currency}
                   </span>
                 </div>
               </div>

@@ -11,6 +11,7 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
+import { useToast } from "../ui/use-toast";
 import { UserAvatar } from "../user/avatar";
 
 export function TransactionTranfer({
@@ -22,6 +23,7 @@ export function TransactionTranfer({
   allUsers: User[];
   balance: number;
 }) {
+  const { toast } = useToast();
   const users = allUsers.filter((user) => user.id !== userId).sort((a, b) => a.name.localeCompare(b.name));
 
   const [serverResponse, setServerResponse] = useState<Response<any> | null>(null);
@@ -53,6 +55,12 @@ export function TransactionTranfer({
       toUserId: data.receiverId,
     });
     setServerResponse(response);
+    toast({
+      title: "💸 Transaction created!",
+      description: (
+        <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbGw2OXB2cmMydW1kb3k5cnpub2x4bm02bmhzZm9lb3E3ZTRxdnhwNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HFkA6omUyjVYqw8/giphy.gif" />
+      ),
+    });
     form.resetField("amount");
   });
   return (

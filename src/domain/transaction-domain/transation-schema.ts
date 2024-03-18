@@ -7,10 +7,9 @@ export const CreateTransactionNumberToNumberSchema = z.object({
     .positive("Amount should be positive, this incident was reported. Nice day!")
     .transform((val) => parseFloat(val.toFixed(1))),
   currency: z.custom<Currency>(),
-  to: z.string().endsWith("5555").length(16),
+  toBankNumber: z.string().endsWith("5555").length(16),
   userId: z.string(),
   fromBankNumber: z.string().optional(),
-  toBankNumber: z.string(),
 });
 
 export const CreateTransactionUserIdToUserIdUserSchema = z.object({
