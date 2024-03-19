@@ -1,4 +1,6 @@
+"use server";
 import prisma from "@/lib/db";
+import { errorResponse, successResponse } from "@/lib/response";
 import { Currency } from "@prisma/client";
 
 function generateRandomDigits(digitCount: number) {
@@ -20,20 +22,33 @@ export async function getBankAccountsByUserId(userId: string) {
   return bankAccounts;
 }
 
-export async function createBankAccount({ userId, currency }: { userId: string; currency: Currency }) {
+export async function createBankAccount({
+  userId,
+  currency,
+  name = "My Bank Account",
+}: {
+  userId: string;
+  currency: Currency;
+  name?: string;
+}) {
   const bankAccount = await prisma.bankAccount.create({
     data: {
       userId: userId,
       currency: currency,
-      name: "My Bank Account",
+      name: name,
       number: generateRandomDigits(12) + "/5555",
     },
     include: {
-      user: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
     },
   });
-
-  return bankAccount;
+  if (!bankAccount) return errorResponse("Bank account not created");
+  return successResponse("Bank account created successfully", bankAccount);
 }
 
 export async function getBankAccountByIdAndUserId(bankAccountId: string, userId: string) {
@@ -44,7 +59,8 @@ export async function getBankAccountByIdAndUserId(bankAccountId: string, userId:
     },
   });
 
-  return bankAccount;
+  if (!bankAccount) return errorResponse("Bank account not found");
+  return successResponse("Bank account found", bankAccount);
 }
 
 export async function getBankAccountByAPIKey(apiKey: string) {

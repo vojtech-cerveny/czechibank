@@ -71,7 +71,7 @@ export async function signInUser(email: string, password: string) {
 }
 
 export async function getAllUsers() {
-  const users = await prisma.user.findMany();
+  const users = await prisma.user.findMany({ include: { BankAccount: true } });
 
   return successResponse("Users found", users);
 }

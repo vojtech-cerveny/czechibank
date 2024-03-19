@@ -9,25 +9,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAllTransactionsByUserId } from "@/domain/transaction-domain/transaction-repository";
+import { getAllTransactionsByUserAndBankAccountId } from "@/domain/transaction-domain/transaction-repository";
 import { Transaction, User } from "@prisma/client";
 import { UserAvatar } from "../user/avatar";
 
-export async function TransactionTable({ userId }: { userId: string }) {
-  const transactions = await getAllTransactionsByUserId(userId);
+export async function TransactionTable({ bankAccountId }: { bankAccountId: string }) {
+  const transactions = await getAllTransactionsByUserAndBankAccountId(bankAccountId);
 
   type TransactionWithUsers = Transaction & {
     to: { user: User };
     from: { user: User };
   };
 
-  function calculateTotalAmount(transactions: TransactionWithUsers[], userId: string) {
+  function calculateTotalAmount(transactions: TransactionWithUsers[], bankAccount: string) {
     let total = 0;
 
     for (const transaction of transactions) {
-      if (transaction.from.user.id === userId) {
+      if (transaction.fromBankId === bankAccount) {
         total -= transaction.amount;
-      } else if (transaction.to.user.id === userId) {
+      } else if (transaction.toBankId === bankAccount) {
         total += transaction.amount;
       }
     }
@@ -35,7 +35,7 @@ export async function TransactionTable({ userId }: { userId: string }) {
     return total;
   }
 
-  const totalAmount = calculateTotalAmount(transactions, userId);
+  const totalAmount = calculateTotalAmount(transactions, bankAccountId);
 
   return (
     <div className="my-8 w-full">
@@ -45,9 +45,9 @@ export async function TransactionTable({ userId }: { userId: string }) {
         <TableCaption>A list of your recent transactions.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="">Invoice</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Method</TableHead>
+            <TableHead className="">From</TableHead>
+            <TableHead>To</TableHead>
+            <TableHead>Currency</TableHead>
             <TableHead className="text-right">Amount</TableHead>
           </TableRow>
         </TableHeader>

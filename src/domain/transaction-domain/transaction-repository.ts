@@ -103,7 +103,7 @@ export async function sendMoneyToBankNumber({
   });
 
   if (!parsedTransaction.success) {
-    return errorResponse("Invalid transaction data", { errors: parsedTransaction.error });
+    return errorResponse("Invalid transaction data", { errors: parsedTransaction.error.errors });
   }
 
   const fromAccount = await prisma.bankAccount.findFirst({
@@ -129,7 +129,7 @@ export async function sendMoneyToBankNumber({
     return errorResponse("Insufficient funds");
   }
 
-  const transaction = await prisma.$transaction([
+  await prisma.$transaction([
     prisma.transaction.create({
       data: {
         amount: parsedTransaction.data.amount,
@@ -158,7 +158,7 @@ export async function sendMoneyToBankNumber({
 
   revalidatePath("/bankAccount");
 
-  return successResponse("Money sent successfully", { transaction: transaction[0] });
+  return successResponse("Money sent successfully", { message: "yolo" });
 }
 
 export async function getAllTransactionsByUserId(userId: string) {
@@ -174,6 +174,38 @@ export async function getAllTransactionsByUserId(userId: string) {
           to: {
             userId: userId,
           },
+        },
+      ],
+    },
+    include: {
+      from: {
+        include: {
+          user: true,
+        },
+      },
+      to: {
+        include: {
+          user: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return transactions;
+}
+
+export async function getAllTransactionsByUserAndBankAccountId(bankAccountId: string) {
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      OR: [
+        {
+          fromBankId: bankAccountId,
+        },
+        {
+          toBankId: bankAccountId,
         },
       ],
     },

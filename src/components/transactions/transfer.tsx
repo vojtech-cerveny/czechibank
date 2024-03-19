@@ -1,11 +1,9 @@
 "use client";
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { sendMoneyToUser } from "@/domain/transaction-domain/transaction-repository";
-import { Response } from "@/lib/response";
+import { sendMoneyToBankNumber } from "@/domain/transaction-domain/transaction-repository";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User } from "@prisma/client";
-import { useState } from "react";
+import { Prisma } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
@@ -14,22 +12,28 @@ import { Input } from "../ui/input";
 import { useToast } from "../ui/use-toast";
 import { UserAvatar } from "../user/avatar";
 
+type UserWithBankAccounts = Prisma.UserGetPayload<{
+  include: {
+    BankAccount: true;
+  };
+}>;
+
 export function TransactionTranfer({
   userId,
+  bankAccountNumber,
   balance,
   allUsers,
 }: {
   userId: string;
-  allUsers: User[];
+  allUsers: UserWithBankAccounts[];
   balance: number;
+  bankAccountNumber: string;
 }) {
   const { toast } = useToast();
   const users = allUsers.filter((user) => user.id !== userId).sort((a, b) => a.name.localeCompare(b.name));
 
-  const [serverResponse, setServerResponse] = useState<Response<any> | null>(null);
-
   const transferScheme = z.object({
-    receiverId: z.string(),
+    toBankNumber: z.string(),
     amount: z.coerce.number().min(0).max(balance),
     // .refine((value) => {
     //   // const decimalPart = value.toString().split('.')[1];
@@ -43,24 +47,28 @@ export function TransactionTranfer({
 
   const form = useForm<z.infer<typeof transferScheme>>({
     resolver: zodResolver(transferScheme),
-    defaultValues: {},
+    defaultValues: {
+      amount: 0,
+      toBankNumber: "",
+    },
   });
 
   const action: () => void = form.handleSubmit(async (data) => {
-    console.log(data);
-    const response = await sendMoneyToUser({
+    const response = await sendMoneyToBankNumber({
       amount: data.amount,
       currency: "CZECHITOKEN",
-      fromUserId: userId,
-      toUserId: data.receiverId,
+      fromBankNumber: bankAccountNumber,
+      toBankNumber: data.toBankNumber,
+      userId: userId,
     });
-    setServerResponse(response);
-    toast({
-      title: "💸 Transaction created!",
-      description: (
-        <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbGw2OXB2cmMydW1kb3k5cnpub2x4bm02bmhzZm9lb3E3ZTRxdnhwNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HFkA6omUyjVYqw8/giphy.gif" />
-      ),
-    });
+    if (response.success) {
+      toast({
+        title: "💸 Transaction created!",
+        description: (
+          <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbGw2OXB2cmMydW1kb3k5cnpub2x4bm02bmhzZm9lb3E3ZTRxdnhwNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HFkA6omUyjVYqw8/giphy.gif" />
+        ),
+      });
+    }
     form.resetField("amount");
   });
   return (
@@ -69,7 +77,7 @@ export function TransactionTranfer({
         <form action={action} className="flex flex-col gap-4">
           <FormField
             control={form.control}
-            name="receiverId"
+            name="toBankNumber"
             render={({ field }) => (
               <FormItem className="gap-4">
                 <FormLabel>Receiver</FormLabel>
@@ -80,14 +88,19 @@ export function TransactionTranfer({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        {users.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            <div className="flex flex-row items-center justify-start space-x-2">
-                              <UserAvatar size={8} userAvatarConfig={user.avatarConfig} />
-                              <span>{user.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
+                        {users.map((user) =>
+                          user.BankAccount.map((bankAccount) => (
+                            <SelectItem key={bankAccount.number} value={bankAccount.number} className="flex w-full">
+                              <div className="flex w-full flex-row items-center justify-between">
+                                <div className="flex w-[300px] flex-row items-center gap-4 pl-8 font-semibold ">
+                                  <UserAvatar size={8} userAvatarConfig={user.avatarConfig} />
+                                  <span className="truncate">{user.name}</span>
+                                </div>
+                                <span className="font-mono">{bankAccount.number}</span>
+                              </div>
+                            </SelectItem>
+                          )),
+                        )}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
