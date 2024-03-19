@@ -84,7 +84,15 @@ export function RegisterForm() {
               <FormControl>
                 <Input placeholder="" {...field} type="password" />
               </FormControl>
-              <FormDescription>Your password must be at least 6 characters long.</FormDescription>
+              <FormDescription>
+                Your password must be at least 6 characters long.{" "}
+                <span className="font-bold text-red-600">
+                  Don't use your personal passwords - database is not encrypted. Use
+                </span>
+                <span className="ml-2 rounded-lg bg-gray-800 p-1 px-2 font-mono font-semibold text-white">
+                  Password123456
+                </span>
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
