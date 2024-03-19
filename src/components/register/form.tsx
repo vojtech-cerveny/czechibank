@@ -87,7 +87,7 @@ export function RegisterForm() {
               <FormDescription>
                 Your password must be at least 6 characters long.{" "}
                 <span className="font-bold text-red-600">
-                  Don't use your personal passwords - database is not encrypted. Use
+                  Do not use your personal passwords - database is not encrypted. Use
                 </span>
                 <span className="ml-2 rounded-lg bg-gray-800 p-1 px-2 font-mono font-semibold text-white">
                   Password123456
