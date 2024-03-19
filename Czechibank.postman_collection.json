@@ -8,111 +8,6 @@
   },
   "item": [
     {
-      "name": "/transactions?[query]",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Response status code is 200\", function () {",
-              "  pm.response.to.have.status(200);",
-              "});",
-              "",
-              "",
-              "pm.test(\"Response has the required fields\", function () {",
-              "    const responseData = pm.response.json();",
-              "",
-              "    pm.expect(responseData).to.be.an('object');",
-              "    pm.expect(responseData.data).to.exist.and.to.be.an('object');",
-              "    pm.expect(responseData.data.transactions).to.exist.and.to.be.an('array');",
-              "});",
-              "",
-              "",
-              "pm.test(\"Verify that the 'transactions' array is present and contains at least one element\", function () {",
-              "  const responseData = pm.response.json();",
-              "",
-              "  pm.expect(responseData).to.be.an('object');",
-              "  pm.expect(responseData.data.transactions).to.exist.and.to.be.an('array').and.to.have.lengthOf.at.least(1);",
-              "});"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3000/api/transactions?filterBy=createdAt&filterValue=2024-03-18&sortBy=createdAtt&sortOrder=asc",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "transactions"],
-          "query": [
-            {
-              "key": "filterBy",
-              "value": "createdAt"
-            },
-            {
-              "key": "filterValue",
-              "value": "2024-03-18"
-            },
-            {
-              "key": "sortBy",
-              "value": "createdAtt"
-            },
-            {
-              "key": "sortOrder",
-              "value": "asc"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "/bank-account/getAll",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Response status code is 200\", function () {",
-              "  pm.expect(pm.response.code).to.equal(200);",
-              "});",
-              "",
-              "",
-              "pm.test(\"Response has required fields\", function () {",
-              "  const responseData = pm.response.json();",
-              "  ",
-              "  pm.expect(responseData).to.be.an('object');",
-              "  pm.expect(responseData.data).to.exist.and.to.be.an('object');",
-              "  pm.expect(responseData.data.bankAccount).to.exist.and.to.be.an('array');",
-              "});",
-              "",
-              "",
-              "pm.test(\"Response time is in an acceptable range\", function () {",
-              "  pm.expect(pm.response.responseTime).to.be.below(500);",
-              "});"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3000/api/bank-account/getAll",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "bank-account", "getAll"]
-        }
-      },
-      "response": []
-    },
-    {
       "name": "/bank-account",
       "event": [
         {
@@ -152,11 +47,132 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:3000/api/bank-account",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "bank-account"]
+          "raw": "{{baseUrl}}/bank-account",
+          "host": ["{{baseUrl}}"],
+          "path": ["bank-account"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/bank-account/getAll",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Response status code is 200\", function () {",
+              "  pm.expect(pm.response.code).to.equal(200);",
+              "});",
+              "",
+              "",
+              "pm.test(\"Response has required fields\", function () {",
+              "  const responseData = pm.response.json();",
+              "  ",
+              "  pm.expect(responseData).to.be.an('object');",
+              "  pm.expect(responseData.data).to.exist.and.to.be.an('object');",
+              "  pm.expect(responseData.data.bankAccount).to.exist.and.to.be.an('array');",
+              "});",
+              "",
+              "",
+              "pm.test(\"Response time is in an acceptable range\", function () {",
+              "  pm.expect(pm.response.responseTime).to.be.below(500);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/bank-account/getAll",
+          "host": ["{{baseUrl}}"],
+          "path": ["bank-account", "getAll"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/bank-account/create",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"{{$randomBankAccountName}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bank-account/create",
+          "host": ["{{baseUrl}}"],
+          "path": ["bank-account", "create"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/transactions?[query]",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Response status code is 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "",
+              "pm.test(\"Response has the required fields\", function () {",
+              "    const responseData = pm.response.json();",
+              "",
+              "    pm.expect(responseData).to.be.an('object');",
+              "    pm.expect(responseData.data).to.exist.and.to.be.an('object');",
+              "    pm.expect(responseData.data.transactions).to.exist.and.to.be.an('array');",
+              "});",
+              "",
+              "",
+              "pm.test(\"Verify that the 'transactions' array is present and contains at least one element\", function () {",
+              "  const responseData = pm.response.json();",
+              "",
+              "  pm.expect(responseData).to.be.an('object');",
+              "  pm.expect(responseData.data.transactions).to.exist.and.to.be.an('array').and.to.have.lengthOf.at.least(1);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions?filterBy=createdAt&filterValue=2024-03-18&sortBy=createdAt&sortOrder=asc",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions"],
+          "query": [
+            {
+              "key": "filterBy",
+              "value": "createdAt"
+            },
+            {
+              "key": "filterValue",
+              "value": "2024-03-18"
+            },
+            {
+              "key": "sortBy",
+              "value": "createdAt"
+            },
+            {
+              "key": "sortOrder",
+              "value": "asc"
+            }
+          ]
         }
       },
       "response": []
@@ -201,11 +217,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:3000/api/transactions/clt67g4h900154xzj5sprbguc",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "transactions", "clt67g4h900154xzj5sprbguc"]
+          "raw": "{{baseUrl}}/transactions/clt67g4h900154xzj5sprbguc",
+          "host": ["{{baseUrl}}"],
+          "path": ["transactions", "clt67g4h900154xzj5sprbguc"]
         }
       },
       "response": []
@@ -337,11 +351,9 @@
           }
         },
         "url": {
-          "raw": "http://localhost:3000/api/user/create",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "user", "create"]
+          "raw": "{{baseUrl}}/user/create",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "create"]
         }
       },
       "response": []
@@ -352,11 +364,22 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:3000/api/user/",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "user", ""]
+          "raw": "{{baseUrl}}/user/",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/about",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/about",
+          "host": ["{{baseUrl}}"],
+          "path": ["about"]
         }
       },
       "response": []
@@ -367,7 +390,7 @@
     "bearer": [
       {
         "key": "token",
-        "value": "mkr8vzzx92",
+        "value": "{{token}}",
         "type": "string"
       }
     ]
