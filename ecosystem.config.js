@@ -14,6 +14,7 @@ module.exports = {
       },
       env_prod: {
         APP_ENV: "prod", // APP_ENV=prod
+        PORT: 4000,
       },
     },
   ],
