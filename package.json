@@ -13,7 +13,10 @@
     "release": "standard-version",
     "prepare:db": "prisma generate & prisma migrate dev",
     "fill:db": "tsx scripts/prepare-db.ts",
-    "postinstall": "prisma generate && npm run prepare:db"
+    "postinstall": "prisma generate && prisma migrate dev",
+    "deploy:local": "next build && pm2 startOrRestart ecosystem.config.js --env local",
+    "deploy:dev": "next build && pm2 startOrRestart ecosystem.config.js --env dev",
+    "deploy:prod": "next build && pm2 startOrRestart ecosystem.config.js --env prod"
   },
   "dependencies": {
     "@dicebear/collection": "^7.0.4",
