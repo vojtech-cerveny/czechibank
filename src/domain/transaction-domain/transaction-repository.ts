@@ -129,13 +129,29 @@ export async function sendMoneyToBankNumber({
     return errorResponse("Insufficient funds");
   }
 
-  await prisma.$transaction([
+  const response = await prisma.$transaction([
     prisma.transaction.create({
       data: {
         amount: parsedTransaction.data.amount,
         currency: parsedTransaction.data.currency,
         fromBankId: fromAccount.id,
         toBankId: toAccount.id,
+      },
+      select: {
+        amount: true,
+        createdAt: true,
+        id: true,
+        currency: true,
+        from: {
+          select: {
+            number: true,
+          },
+        },
+        to: {
+          select: {
+            number: true,
+          },
+        },
       },
     }),
     prisma.bankAccount.update({
@@ -158,7 +174,7 @@ export async function sendMoneyToBankNumber({
 
   revalidatePath("/bankAccount");
 
-  return successResponse("Money sent successfully", { message: "yolo" });
+  return successResponse("Money sent successfully", { message: response[0] });
 }
 
 export async function getAllTransactionsByUserId(userId: string) {
