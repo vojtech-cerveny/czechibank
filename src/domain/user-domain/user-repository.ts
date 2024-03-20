@@ -33,12 +33,48 @@ export async function registerUser(userData: Omit<Prisma.UserCreateInput, "avata
       },
     });
     await createBankAccount({ userId: prismaUser.id, currency: "CZECHITOKEN" });
-    await processUserSignIn({ email: prismaUser.email, password: prismaUser.password });
+    await processUserSignIn({ email: user.email, password: user.password });
     // redirect("/");
 
     return successResponse("User created successfully", prismaUser);
   } catch (e) {
-    return errorResponse("An error occurred while creating the user");
+    return errorResponse("An error occurred while creating the user", e);
+  }
+}
+
+// TODO: this is quick fix for API - but it should be one function with registerUser
+export async function registerUserAPI(userData: Omit<Prisma.UserCreateInput, "avatarConfig">) {
+  const parsedUser = UserSchema.safeParse(userData);
+
+  if (!parsedUser.success) {
+    return errorResponse("Invalid user data", parsedUser.error);
+  }
+
+  const user = parsedUser.data;
+
+  if (!(await isEmailUnique(user.email))) {
+    return errorResponse("Email already exists");
+  }
+
+  try {
+    const avatarConfig = generateRandomAvatarConfig();
+
+    const prismaUser = await prisma.user.create({
+      data: {
+        email: user.email,
+        name: user.name,
+        password: user.password,
+        sex: user.sex,
+        avatarConfig: JSON.stringify(avatarConfig),
+      },
+    });
+    await createBankAccount({ userId: prismaUser.id, currency: "CZECHITOKEN" });
+
+    // redirect("/");
+
+    return successResponse("User created successfully", prismaUser);
+  } catch (e) {
+    return errorResponse("An error occurred while creating the user", e);
   }
 }
 

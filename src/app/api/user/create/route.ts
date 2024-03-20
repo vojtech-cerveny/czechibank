@@ -1,6 +1,6 @@
 export { DELETE, GET, HEAD, OPTIONS, PATCH, PUT } from "../../routes";
 
-import { isEmailUnique, registerUser } from "@/domain/user-domain/user-repository";
+import { isEmailUnique, registerUserAPI } from "@/domain/user-domain/user-repository";
 import { UserSchema } from "@/domain/user-domain/user-schema";
 import { errorResponse } from "@/lib/response";
 import { handleErrors } from "../../routes";
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return Response.json(errorResponse("Email already exists"));
     }
 
-    const response = await registerUser(user);
+    const response = await registerUserAPI(user);
     return Response.json(response, { status: response.success ? 201 : 400 });
   } catch (error) {
     handleErrors(error as Error);
