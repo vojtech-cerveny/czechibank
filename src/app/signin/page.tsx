@@ -15,6 +15,7 @@ import { useState } from "react";
 
 import { useToast } from "@/components/ui/use-toast";
 import { processUserSignIn } from "@/domain/user-domain/user-actions";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default function SignInPage() {
@@ -80,7 +81,14 @@ export default function SignInPage() {
               </FormItem>
             )}
           />
-          <Button type="submit">Sign in</Button>
+          <div className="flex gap-2">
+            <Button type="submit">Sign in</Button>
+            <Link href={"/register"}>
+              <Button type="button" variant={"link"}>
+                Register
+              </Button>
+            </Link>
+          </div>
         </form>
       </Form>
     </div>
