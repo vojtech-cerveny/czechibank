@@ -1,8 +1,8 @@
 import { getAllTransactionsByUserIdForAPI } from "@/domain/transaction-domain/transaction-repository";
-import { ErrorResponse, SuccessResponse } from "@/lib/response";
+
 import { Currency } from "@prisma/client";
 import { authenticateRequest, handleErrors } from "../routes";
-export { DELETE, HEAD, OPTIONS, PATCH, PUT, handleErrors } from "../routes";
+export { DELETE, HEAD, OPTIONS, PATCH, PUT } from "../routes";
 
 type TransactionAPI = {
   amount: number;
@@ -56,8 +56,4 @@ export async function GET(request: Request) {
     const err = error as unknown as Error;
     return handleErrors(err);
   }
-}
-
-export function isError(response: ErrorResponse | SuccessResponse<any>): response is ErrorResponse {
-  return (response as ErrorResponse).success === false;
 }

@@ -1,6 +1,6 @@
 import { createBankAccount } from "@/domain/bankAccount-domain/ba-repository";
+import { isError } from "../../lib";
 import { authenticateRequest, handleErrors } from "../../routes";
-import { isError } from "../../transactions/route";
 
 export async function POST(request: Request) {
   try {

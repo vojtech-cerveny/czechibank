@@ -1,6 +1,6 @@
 import { sendMoneyToBankNumber } from "@/domain/transaction-domain/transaction-repository";
+import { isError } from "../../lib";
 import { authenticateRequest, handleErrors } from "../../routes";
-import { isError } from "../route";
 
 export async function POST(request: Request) {
   try {
