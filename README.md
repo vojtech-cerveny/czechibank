@@ -1,6 +1,10 @@
-# Boiler plate for nextjs + prisma + nextauth
+# Czechibank
 
-This is basic boilerplate for NextJS (Typescript) + Prisma + Auth.js (GoogleAuth).
+Super simple application for showcase how API works. It is for Czechitas lecture during DA2024
+Techstack: NextJS (Typescript) + Prisma + Auth.js (email)
+
+- Check Postman collection what is possible.
+- k6 script is possible to run as `k6 run -e APIKEY=yourApiKey k6-tests/script.js`
 
 ## Contains
 
@@ -14,7 +18,6 @@ This is basic boilerplate for NextJS (Typescript) + Prisma + Auth.js (GoogleAuth
 
 ## Setup
 
-1. Setup GoogleAuth - follow [official documentation](https://next-auth.js.org/providers/google)
 1. `mv .env.example .env` - and fill environment variables
 1. Run docker image with database
    - `docker compose up -d`

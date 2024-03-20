@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     if (isError(response)) {
       return Response.json({ error: response }, { status: 400 });
     }
-    return Response.json({ data: { response } });
+    return Response.json({ data: { response } }, { status: 201 });
   } catch (error) {
     handleErrors(error as Error);
   }

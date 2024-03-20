@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     console.log(user);
     const bankAccounts = await getAllBankAccounts();
     console.log(bankAccounts);
-    return Response.json({ data: { bankAccount: bankAccounts } });
+    return Response.json({ data: { bankAccount: bankAccounts } }, { status: 200 });
   } catch (error) {
     const err = error as unknown as Error;
     handleErrors(err);
