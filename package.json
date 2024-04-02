@@ -12,7 +12,7 @@
     "prepare": "husky install",
     "release": "standard-version",
     "prepare:db": "prisma generate & prisma migrate dev",
-    "fill:db": "tsx scripts/prepare-db.ts",
+    "fill:db": "tsx scripts/fill-db.ts",
     "deploy:local": "next build && pm2 startOrRestart ecosystem.config.js --env local",
     "deploy:dev": "next build && pm2 startOrRestart ecosystem.config.js --env dev",
     "deploy:prod": "next build && pm2 startOrRestart ecosystem.config.js --env prod"
