@@ -42,7 +42,6 @@
     "react-hook-form": "^7.50.1",
     "react-nice-avatar": "^1.5.0",
     "recharts": "^2.12.0",
-    "sharp": "^0.32.6",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4"
