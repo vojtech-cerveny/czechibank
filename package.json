@@ -42,6 +42,7 @@
     "react-hook-form": "^7.50.1",
     "react-nice-avatar": "^1.5.0",
     "recharts": "^2.12.0",
+    "sharp": "^0.32.6",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4"
@@ -56,6 +57,7 @@
     "eslint-config-next": "14.1.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
+    "node-loader": "^2.0.0",
     "postcss": "^8",
     "prettier": "^3.2.2",
     "prettier-plugin-organize-imports": "^3.2.4",

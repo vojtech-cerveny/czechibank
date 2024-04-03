@@ -16,8 +16,6 @@ RUN \
   fi
 COPY node_modules ./node_modules
 
-RUN npx prisma generate
-
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
@@ -29,9 +27,6 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
 
-COPY prisma ./prisma/
-RUN npx prisma generate
-
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
@@ -39,6 +34,7 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
+RUN npx prisma generate
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app

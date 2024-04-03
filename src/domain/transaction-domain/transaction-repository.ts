@@ -3,8 +3,8 @@ import prisma from "@/lib/db";
 import { errorResponse, successResponse } from "@/lib/response";
 import { Currency } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { sendSlackMessage } from "../slack-domain/slack-action";
 import { CreateTransactionNumberToNumberSchema, CreateTransactionUserIdToUserIdUserSchema } from "./transation-schema";
-
 export async function sendMoneyToUser({
   fromUserId,
   toUserId,
@@ -49,13 +49,34 @@ export async function sendMoneyToUser({
     return errorResponse("Insufficient funds");
   }
 
-  await prisma.$transaction([
+  const response = await prisma.$transaction([
     prisma.transaction.create({
       data: {
         amount: parsedTransaction.data.amount,
         currency: parsedTransaction.data.currency,
         fromBankId: fromAccount.id,
         toBankId: toAccount.id,
+      },
+      select: {
+        amount: true,
+        createdAt: true,
+        id: true,
+        currency: true,
+        from: {
+          select: {
+            number: true,
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        to: {
+          select: {
+            number: true,
+          },
+        },
       },
     }),
     prisma.bankAccount.update({
@@ -75,6 +96,13 @@ export async function sendMoneyToUser({
       },
     }),
   ]);
+  if (response[0].to.number == "555555555555/5555") {
+    await sendSlackMessage({
+      message: ":money_with_wings: Money sent successfully",
+      sender: response[0].from.user.name,
+      text: `Money sent from ${fromAccount.number} to ${toAccount.number} - ${parsedTransaction.data.amount} ${parsedTransaction.data.currency} :tada:`,
+    });
+  }
 
   revalidatePath("/bankAccount");
 
@@ -145,6 +173,11 @@ export async function sendMoneyToBankNumber({
         from: {
           select: {
             number: true,
+            user: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
         to: {
@@ -171,7 +204,14 @@ export async function sendMoneyToBankNumber({
       },
     }),
   ]);
-
+  // HARD-CODED DONATION NUMBER, who cares
+  if (response[0].to.number == "555555555555/5555") {
+    await sendSlackMessage({
+      message: ":money_with_wings: Money sent successfully",
+      sender: response[0].from.user.name,
+      text: `Money sent from ${fromAccount.number} to ${toAccount.number} - ${parsedTransaction.data.amount} ${parsedTransaction.data.currency} :tada:`,
+    });
+  }
   revalidatePath("/bankAccount");
 
   return successResponse("Money sent successfully", { message: response[0] });
