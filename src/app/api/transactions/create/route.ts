@@ -16,6 +16,7 @@ export async function POST(request: Request) {
       toBankNumber: to,
       userId: user.id,
       currency: "CZECHITOKEN",
+      applicationType: "api",
     });
     if (isError(response)) {
       return Response.json({ error: response }, { status: 400 });

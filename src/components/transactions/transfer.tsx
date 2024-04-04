@@ -60,6 +60,7 @@ export function TransactionTranfer({
       fromBankNumber: bankAccountNumber,
       toBankNumber: data.toBankNumber,
       userId: userId,
+      applicationType: "web",
     });
     if (response.success) {
       toast({

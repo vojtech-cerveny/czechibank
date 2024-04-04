@@ -4,110 +4,7 @@ import { errorResponse, successResponse } from "@/lib/response";
 import { Currency } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { sendSlackMessage } from "../slack-domain/slack-action";
-import { CreateTransactionNumberToNumberSchema, CreateTransactionUserIdToUserIdUserSchema } from "./transation-schema";
-export async function sendMoneyToUser({
-  fromUserId,
-  toUserId,
-  amount,
-  currency,
-}: {
-  fromUserId: string;
-  toUserId: string;
-  amount: number;
-  currency: Currency;
-}) {
-  const parsedTransaction = CreateTransactionUserIdToUserIdUserSchema.safeParse({
-    fromUserId,
-    toUserId,
-    amount,
-    currency,
-  });
-
-  if (!parsedTransaction.success) {
-    return errorResponse("Invalid transaction data");
-  }
-
-  const fromAccount = await prisma.bankAccount.findFirst({
-    where: {
-      userId: parsedTransaction.data.fromUserId,
-      currency: parsedTransaction.data.currency,
-    },
-  });
-
-  const toAccount = await prisma.bankAccount.findFirst({
-    where: {
-      userId: parsedTransaction.data.toUserId,
-      currency: parsedTransaction.data.currency,
-    },
-  });
-
-  if (fromAccount === null || toAccount === null) {
-    return errorResponse("Bank account not found");
-  }
-
-  if (fromAccount.balance < amount) {
-    return errorResponse("Insufficient funds");
-  }
-
-  const response = await prisma.$transaction([
-    prisma.transaction.create({
-      data: {
-        amount: parsedTransaction.data.amount,
-        currency: parsedTransaction.data.currency,
-        fromBankId: fromAccount.id,
-        toBankId: toAccount.id,
-      },
-      select: {
-        amount: true,
-        createdAt: true,
-        id: true,
-        currency: true,
-        from: {
-          select: {
-            number: true,
-            user: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-        to: {
-          select: {
-            number: true,
-          },
-        },
-      },
-    }),
-    prisma.bankAccount.update({
-      where: {
-        id: fromAccount.id,
-      },
-      data: {
-        balance: fromAccount.balance - parsedTransaction.data.amount,
-      },
-    }),
-    prisma.bankAccount.update({
-      where: {
-        id: toAccount.id,
-      },
-      data: {
-        balance: toAccount.balance + parsedTransaction.data.amount,
-      },
-    }),
-  ]);
-  if (response[0].to.number == "555555555555/5555") {
-    await sendSlackMessage({
-      message: ":money_with_wings: Money sent successfully",
-      sender: response[0].from.user.name,
-      text: `Money sent from ${fromAccount.number} to ${toAccount.number} - ${parsedTransaction.data.amount} ${parsedTransaction.data.currency} :tada:`,
-    });
-  }
-
-  revalidatePath("/bankAccount");
-
-  return successResponse("Money sent successfully", { message: "yolo" });
-}
+import { CreateTransactionNumberToNumberSchema } from "./transation-schema";
 
 export async function sendMoneyToBankNumber({
   userId,
@@ -115,12 +12,14 @@ export async function sendMoneyToBankNumber({
   toBankNumber,
   amount,
   currency,
+  applicationType,
 }: {
   userId: string;
   toBankNumber: string;
   fromBankNumber?: string;
   amount: number;
   currency: Currency;
+  applicationType: "web" | "api";
 }) {
   const parsedTransaction = CreateTransactionNumberToNumberSchema.safeParse({
     userId,
@@ -207,9 +106,10 @@ export async function sendMoneyToBankNumber({
   // HARD-CODED DONATION NUMBER, who cares
   if (response[0].to.number == "555555555555/5555") {
     await sendSlackMessage({
-      message: ":money_with_wings: Money sent successfully",
-      sender: response[0].from.user.name,
-      text: `Money sent from ${fromAccount.number} to ${toAccount.number} - ${parsedTransaction.data.amount} ${parsedTransaction.data.currency} :tada:`,
+      text: `Money sent from account \`${fromAccount.number}\` - *${parsedTransaction.data.amount} ${parsedTransaction.data.currency}* :tada:`,
+      message: ":money_with_wings: Money sent successfully!",
+      sender: `Thanks for your donation ${response[0].from.user.name}`,
+      applicationType,
     });
   }
   revalidatePath("/bankAccount");

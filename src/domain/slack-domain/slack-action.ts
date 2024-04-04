@@ -1,12 +1,14 @@
 "use server";
 export async function sendSlackMessage({
-  message: mainMessage,
+  message,
   sender,
-  text: secondMessage,
+  text,
+  applicationType,
 }: {
   message: string;
   sender: string;
   text: string;
+  applicationType: "web" | "api";
 }) {
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -14,11 +16,11 @@ export async function sendSlackMessage({
 
   const raw = JSON.stringify({
     channel: "C06SE5WP91U",
-    text: secondMessage,
+    text: `*[${applicationType.toUpperCase()}]* ${text}`,
     attachments: [
       {
-        color: "#FF0000",
-        text: mainMessage,
+        color: applicationType === "web" ? "#73D2DE" : "#FBB13C",
+        text: message,
         footer: sender,
       },
     ],
