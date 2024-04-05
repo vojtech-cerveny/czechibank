@@ -1,6 +1,6 @@
 import { sendMoneyToBankNumber } from "@/domain/transaction-domain/transaction-repository";
 import { isError } from "../../lib";
-import { authenticateRequest, handleErrors } from "../../routes";
+import { ApiError, authenticateRequest, handleErrors } from "../../routes";
 
 export async function POST(request: Request) {
   try {
@@ -23,6 +23,10 @@ export async function POST(request: Request) {
     }
     return Response.json({ data: { response } }, { status: 201 });
   } catch (error) {
-    handleErrors(error as Error);
+    if (error instanceof ApiError) {
+      return handleErrors(error);
+    } else {
+      return Response.json({ error: "Internal Server Error", message: error }, { status: 500 });
+    }
   }
 }

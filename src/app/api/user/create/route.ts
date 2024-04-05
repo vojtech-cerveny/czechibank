@@ -3,7 +3,7 @@ export { DELETE, GET, HEAD, OPTIONS, PATCH, PUT } from "../../routes";
 import { isEmailUnique, registerUserAPI } from "@/domain/user-domain/user-repository";
 import { UserSchema } from "@/domain/user-domain/user-schema";
 import { errorResponse } from "@/lib/response";
-import { handleErrors } from "../../routes";
+import { ApiError, handleErrors } from "../../routes";
 
 export async function POST(request: Request) {
   try {
@@ -23,7 +23,10 @@ export async function POST(request: Request) {
     const response = await registerUserAPI(user);
     return Response.json(response, { status: response.success ? 201 : 400 });
   } catch (error) {
-    handleErrors(error as Error);
+    if (error instanceof ApiError) {
+      return handleErrors(error);
+    } else {
+      return Response.json({ error: "Internal Server Error", message: error }, { status: 500 });
+    }
   }
-  return Response.json({ error: "Internal Server Error" }, { status: 500 });
 }

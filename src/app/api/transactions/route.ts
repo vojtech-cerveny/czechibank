@@ -1,7 +1,7 @@
 import { getAllTransactionsByUserIdForAPI } from "@/domain/transaction-domain/transaction-repository";
 
 import { Currency } from "@prisma/client";
-import { authenticateRequest, handleErrors } from "../routes";
+import { ApiError, authenticateRequest, handleErrors } from "../routes";
 export { DELETE, HEAD, OPTIONS, PATCH, PUT } from "../routes";
 
 type TransactionAPI = {
@@ -53,7 +53,10 @@ export async function GET(request: Request) {
     }
     return Response.json({ data: { transactions } });
   } catch (error) {
-    const err = error as unknown as Error;
-    return handleErrors(err);
+    if (error instanceof ApiError) {
+      return handleErrors(error);
+    } else {
+      return Response.json({ error: "Internal Server Error", message: error }, { status: 500 });
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { getAllBankAccounts } from "@/domain/bankAccount-domain/ba-repository";
 
-import { DELETE, HEAD, OPTIONS, PATCH, POST, PUT, authenticateRequest, handleErrors } from "../../routes";
+import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, authenticateRequest, handleErrors } from "../../routes";
 
 export async function GET(request: Request) {
   try {
@@ -11,10 +11,12 @@ export async function GET(request: Request) {
     console.log(bankAccounts);
     return Response.json({ data: { bankAccount: bankAccounts } }, { status: 200 });
   } catch (error) {
-    const err = error as unknown as Error;
-    handleErrors(err);
+    if (error instanceof ApiError) {
+      return handleErrors(error);
+    } else {
+      return Response.json({ error: "Internal Server Error", message: error }, { status: 500 });
+    }
   }
-  return Response.json({ error: "Internal Server Error" }, { status: 500 });
 }
 
 export { DELETE, HEAD, OPTIONS, PATCH, POST, PUT };
