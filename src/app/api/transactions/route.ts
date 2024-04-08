@@ -24,6 +24,10 @@ type TransactionAPI = {
   };
 };
 
+function getNestedProperty(obj: any, path: string) {
+  return path.split(".").reduce((obj, prop) => obj && obj[prop], obj);
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -32,27 +36,28 @@ export async function GET(request: Request) {
     const filterBy: keyof TransactionAPI = (searchParams.get("filterBy") as keyof TransactionAPI) || "";
     const filterValue = searchParams.get("filterValue") || "";
 
+    console.log(sortBy, order, filterBy, filterValue);
     const user = await authenticateRequest(request);
 
     console.log(searchParams.get("sortOrder"), order);
     let transactions = await getAllTransactionsByUserIdForAPI(user.id, sortBy, order as "asc" | "desc");
-
+    console.log(transactions.length);
     if (filterBy) {
       return Response.json({
         data: {
           transactions: transactions.filter((transaction) => {
-            // QUESTION: this use include, should we use == ?
-            // need to use toISOString to convert date to string
-            if (filterBy === "createdAt") {
-              return transaction[filterBy].toISOString().toLowerCase().includes(filterValue.toLowerCase());
+            const transactionValue = getNestedProperty(transaction, filterBy);
+            if (transactionValue) {
+              return transactionValue.toString().toLowerCase().includes(filterValue.toLowerCase());
             }
-            return transaction[filterBy].toString().toLowerCase().includes(filterValue.toLowerCase());
+            return false;
           }),
         },
       });
     }
     return Response.json({ data: { transactions } });
   } catch (error) {
+    console.log(error);
     if (error instanceof ApiError) {
       return handleErrors(error);
     } else {
