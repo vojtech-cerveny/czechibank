@@ -50,6 +50,9 @@ export async function GET(request: Request) {
             if (transactionValue) {
               return transactionValue.toString().toLowerCase().includes(filterValue.toLowerCase());
             }
+            if (filterBy === "createdAt") {
+              return transaction[filterBy].toISOString().toLowerCase().includes(filterValue.toLowerCase());
+            }
             return false;
           }),
         },
