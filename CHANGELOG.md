@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/vojtech-cerveny/czechibank/compare/v0.1.2...v0.1.3) (2024-04-10)
+
+### Bug Fixes
+
+- nested filter ([5e44fc2](https://github.com/vojtech-cerveny/czechibank/commit/5e44fc22f7408d40171d8705afb462a55e9407df))
+
 ### [0.1.2](https://github.com/vojtech-cerveny/czechibank/compare/v0.1.1...v0.1.2) (2024-04-05)
 
 ### Features
