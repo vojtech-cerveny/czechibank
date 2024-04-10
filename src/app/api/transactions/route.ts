@@ -47,12 +47,13 @@ export async function GET(request: Request) {
         data: {
           transactions: transactions.filter((transaction) => {
             const transactionValue = getNestedProperty(transaction, filterBy);
-            if (transactionValue) {
-              return transactionValue.toString().toLowerCase().includes(filterValue.toLowerCase());
-            }
             if (filterBy === "createdAt") {
               return transaction[filterBy].toISOString().toLowerCase().includes(filterValue.toLowerCase());
             }
+            if (transactionValue) {
+              return transactionValue.toString().toLowerCase().includes(filterValue.toLowerCase());
+            }
+
             return false;
           }),
         },
