@@ -12,6 +12,7 @@ import {
 import { getAllTransactionsByUserAndBankAccountId } from "@/domain/transaction-domain/transaction-repository";
 import { Transaction, User } from "@prisma/client";
 import { UserAvatar } from "../user/avatar";
+import { AlertDestructive } from "./alert";
 
 export async function TransactionTable({ bankAccountId }: { bankAccountId: string }) {
   const transactions = await getAllTransactionsByUserAndBankAccountId(bankAccountId);
@@ -40,7 +41,7 @@ export async function TransactionTable({ bankAccountId }: { bankAccountId: strin
   return (
     <div className="my-8 w-full">
       <h1>Transactions</h1>
-
+      <AlertDestructive message="DUE to bad performance, you will see last 10 transactions. Use API to see ALL your transactions." />
       <Table>
         <TableCaption>A list of your recent transactions.</TableCaption>
         <TableHeader>

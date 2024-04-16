@@ -180,6 +180,7 @@ export async function getAllTransactionsByUserAndBankAccountId(bankAccountId: st
     orderBy: {
       createdAt: "desc",
     },
+    take: -10,
   });
 
   return transactions;
