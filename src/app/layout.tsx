@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className + " min-h-screen w-full min-w-full px-4 py-4 pb-10 sm:px-6 md:max-w-2xl"}>
+      <body className={inter.className + " min-h-screen w-full min-w-full px-4 py-4 pb-10 sm:px-6 md:max-w-3xl"}>
         <ThemeProvider attribute="class" defaultTheme="system">
           <div className="flex flex-row items-center justify-between">
             <Link href={"/"} className="flex flex-row items-center space-x-2">
@@ -33,7 +33,7 @@ export default function RootLayout({
               <UserButton />
             </div>
           </div>
-          <div className="mx-auto max-w-2xl">{children}</div>
+          <div className="mx-auto max-w-3xl">{children}</div>
         </ThemeProvider>
         <Toaster />
       </body>

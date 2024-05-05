@@ -17,7 +17,7 @@ export default async function Home() {
   return (
     <main className="">
       <h1 className="mb-8 mt-10 text-3xl font-extrabold"> Hello {session.user.name}!</h1>
-      <div className="container flex gap-2">
+      <div className="grid grid-cols-2 gap-4">
         {bankAccounts.map((ba) => (
           <Link key={ba.id} href={`/bankAccount/${ba.id}`}>
             <BankAccountCard bankAccount={ba} />
@@ -30,7 +30,7 @@ export default async function Home() {
 
 function BankAccountCard({ bankAccount }: { bankAccount: BankAccount }) {
   return (
-    <Card className="w-[350px] duration-300 hover:shadow-md">
+    <Card className="w-max-[400px] duration-300 hover:shadow-md">
       <CardHeader>
         <CardTitle>{bankAccount.name}</CardTitle>
         <CardDescription>{bankAccount.currency}</CardDescription>
