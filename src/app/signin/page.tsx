@@ -63,7 +63,7 @@ export default function SignInPage() {
                   <Input placeholder="" {...field} />
                 </FormControl>
                 <FormDescription>Email for sign in</FormDescription>
-                <FormMessage />
+                <FormMessage id="email-message" />
               </FormItem>
             )}
           />
@@ -77,7 +77,7 @@ export default function SignInPage() {
                   <Input placeholder="" {...field} type="password" />
                 </FormControl>
                 <FormDescription>Your password must be at least 6 characters long.</FormDescription>
-                <FormMessage />
+                <FormMessage id="password-message" />
               </FormItem>
             )}
           />
