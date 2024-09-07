@@ -178,7 +178,7 @@ export async function getAllTransactionsByUserAndBankAccountId(bankAccountId: st
       },
     },
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
     take: -10,
   });
