@@ -33,22 +33,18 @@ export default function SignInPage() {
     const response = await processUserSignIn(data);
     setServerResponse(response);
     if (response.success) {
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in. Enjoy your journey in Czechitoken!",
-      });
+      redirect("/");
     }
-    redirect("/");
   });
 
   return (
     <div>
       <h1 className="my-8 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">Sign in</h1>
-      {serverResponse && !serverResponse.success && (
+      {serverResponse?.success === false && (
         <Alert variant="destructive" className="my-4">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Oops!</AlertTitle>
-          <AlertDescription>{serverResponse.message}</AlertDescription>
+          <AlertDescription>Something went wrong!</AlertDescription>
         </Alert>
       )}
       <Form {...form}>
