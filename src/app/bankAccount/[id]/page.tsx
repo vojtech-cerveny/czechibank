@@ -8,13 +8,27 @@ import { getSession } from "@/lib/auth";
 import { RocketIcon } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
+type Session = {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    apiKey: string;
+    sex: "MALE" | "FEMALE";
+    avatarConfig: string;
+  };
+  expires: string;
+  iat: number;
+  exp: number;
+};
+
 export default async function BankAccountPage({ params }: { params: { id: string } }) {
-  const session = await getSession();
+  const session: Session = await getSession();
 
   if (!session) {
     redirect("/signin");
   }
-  const bankAccount = await getBankAccountByIdAndUserId(params.id, session.userId);
+  const bankAccount = await getBankAccountByIdAndUserId(params.id, session.user.id);
   if (!bankAccount.success) {
     notFound();
   }
@@ -23,7 +37,7 @@ export default async function BankAccountPage({ params }: { params: { id: string
   if (!session || !bankAccount) {
     <h1 className="my-8 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">404</h1>;
   }
-  if (bankAccount) {
+  if (bankAccount.success) {
     return (
       <div className="flex flex-col gap-4">
         <h1 className="my-8 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{bankAccount.data.name}</h1>

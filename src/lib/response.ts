@@ -18,6 +18,6 @@ export function successResponse<T>(message: string, data: T): SuccessResponse<T>
 }
 
 export function errorResponse(message: string, error?: any): ErrorResponse {
-  console.log("errorResponse", message, error);
+  console.error("errorResponse", message, error);
   return { success: false, message, error };
 }
