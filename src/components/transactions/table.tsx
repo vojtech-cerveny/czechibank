@@ -41,7 +41,7 @@ export async function TransactionTable({ bankAccountId }: { bankAccountId: strin
   return (
     <div className="my-8 w-full">
       <h1>Transactions</h1>
-      <AlertDestructive message="DUE to bad performance, you will see last 10 transactions. Use API to see ALL your transactions." />
+      <AlertDestructive message="DUE to bad performance, you will see last 30 transactions. Use API to see ALL your transactions." />
       <Table>
         <TableCaption>A list of your recent transactions.</TableCaption>
         <TableHeader>

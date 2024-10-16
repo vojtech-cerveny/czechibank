@@ -30,7 +30,14 @@ export function TransactionTranfer({
   bankAccountNumber: string;
 }) {
   const { toast } = useToast();
-  const users = allUsers.filter((user) => user.id !== userId).sort((a, b) => a.name.localeCompare(b.name));
+  const users = allUsers
+    .filter((user) => user.id !== userId)
+    .sort((a, b) => {
+      if (a.name.includes("Pejsek a Kočicka") && !b.name.includes("Pejsek a Kočicka")) return -1;
+      if (!a.name.includes("Pejsek a Kočicka") && b.name.includes("Pejsek a Kočicka")) return 1;
+
+      return a.name.localeCompare(b.name);
+    });
 
   const transferScheme = z.object({
     toBankNumber: z.string(),

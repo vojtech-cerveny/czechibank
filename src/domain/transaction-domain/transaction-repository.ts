@@ -117,6 +117,17 @@ export async function sendMoneyToBankNumber({
       message: "Money sent successfully!",
       sender: `${response[0].from.user.name}`,
       applicationType,
+      city: "prague",
+    });
+  }
+
+  if (response[0].to.number == "444444444444/5555") {
+    await sendDiscordMessage({
+      text: `Money sent from account \`${fromAccount.number}\` - **${parsedTransaction.data.amount} ${parsedTransaction.data.currency}** :tada:`,
+      message: "Money sent successfully!",
+      sender: `${response[0].from.user.name}`,
+      applicationType,
+      city: "brno",
     });
   }
   revalidatePath("/bankAccount");
@@ -187,7 +198,7 @@ export async function getAllTransactionsByUserAndBankAccountId(bankAccountId: st
     orderBy: {
       createdAt: "desc",
     },
-    take: 10,
+    take: 30,
   });
 
   return transactions;

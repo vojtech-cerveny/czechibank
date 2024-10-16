@@ -5,14 +5,25 @@ export async function sendDiscordMessage({
   sender,
   text,
   applicationType,
+  city,
 }: {
   message: string;
   sender: string;
   text: string;
   applicationType: "web" | "api";
+  city: "prague" | "brno";
 }) {
-  const DISCORD_WEBHOOK_URL =
+  const DISCORD_WEBHOOK_URL_PRAGUE =
     "https://discord.com/api/webhooks/1295709536774127737/6BC92ZjqbuHWK4rEQUapMUUTWz5NcpTa9mJBVPD2K5xB9swpATCzkMrtP2JSYx3B57j6";
+
+  const DISCORD_WEBHOOK_URL_BRNO =
+    "https://discord.com/api/webhooks/1295709331488243754/HOF-dOhNdcPA1BPP8-uhi-SnJWcF97attHSzvbDNIpvVWBRAj0VEH_3vxu1HnyEIRcHM";
+
+  const URL = {
+    prague: DISCORD_WEBHOOK_URL_PRAGUE,
+    brno: DISCORD_WEBHOOK_URL_BRNO,
+  };
+
   const discord_message = {
     username: "DONATION BOT 2.0",
     avatar_url: "https://i.imgur.com/IVb6eBu.png",
@@ -50,7 +61,7 @@ export async function sendDiscordMessage({
     headers: myHeaders,
   };
 
-  fetch(DISCORD_WEBHOOK_URL, requestOptions)
+  fetch(URL[city], requestOptions)
     .then((response) => response.text())
     .then((result) => console.log(result))
     .catch((error) => console.error(error));
