@@ -3,7 +3,7 @@ import prisma from "@/lib/db";
 import { errorResponse, successResponse } from "@/lib/response";
 import { Currency } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { sendSlackMessage } from "../slack-domain/slack-action";
+import { sendDiscordMessage } from "../social-reporting-domain/discord-action";
 import { CreateTransactionNumberToNumberSchema } from "./transation-schema";
 
 export async function sendMoneyToBankNumber({
@@ -105,10 +105,17 @@ export async function sendMoneyToBankNumber({
   ]);
   // HARD-CODED DONATION NUMBER, who cares
   if (response[0].to.number == "555555555555/5555") {
-    await sendSlackMessage({
-      text: `Money sent from account \`${fromAccount.number}\` - *${parsedTransaction.data.amount} ${parsedTransaction.data.currency}* :tada:`,
-      message: ":money_with_wings: Money sent successfully!",
-      sender: `Thanks for your donation ${response[0].from.user.name}`,
+    // await sendSlackMessage({
+    //   text: `Money sent from account \`${fromAccount.number}\` - *${parsedTransaction.data.amount} ${parsedTransaction.data.currency}* :tada:`,
+    //   message: ":money_with_wings: Money sent successfully!",
+    //   sender: `Thanks for your donation ${response[0].from.user.name}`,
+    //   applicationType,
+    // });
+
+    await sendDiscordMessage({
+      text: `Money sent from account \`${fromAccount.number}\` - **${parsedTransaction.data.amount} ${parsedTransaction.data.currency}** :tada:`,
+      message: "Money sent successfully!",
+      sender: `${response[0].from.user.name}`,
       applicationType,
     });
   }

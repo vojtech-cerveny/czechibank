@@ -15,7 +15,7 @@ export async function sendSlackMessage({
   myHeaders.append("Authorization", `Bearer ${process.env.SLACK_APIKEY}`);
 
   const raw = JSON.stringify({
-    channel: "C06SE5WP91U",
+    channel: "B07QPF5P56F",
     text: `*[${applicationType.toUpperCase()}]* ${text}`,
     attachments: [
       {
