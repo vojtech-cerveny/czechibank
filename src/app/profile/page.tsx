@@ -49,7 +49,7 @@ export default async function ProfilePage() {
           <div className="flex flex-row items-end space-x-2">
             <ApiKeyForm apiKey={user!.apiKey} />
             <form action={handleRegenerateApiKey}>
-              <Button variant={"outline"}>Generate new API key</Button>
+              <Button variant={"outline"}>Generate new Bearer token</Button>
             </form>
           </div>
         </CardContent>

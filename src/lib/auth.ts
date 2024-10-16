@@ -21,7 +21,7 @@ export async function decrypt(input: string): Promise<any> {
     });
     return payload;
   } catch (e) {
-    // cookies().delete("session");
+    cookies().delete("session");
   }
 }
 
