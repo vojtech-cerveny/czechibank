@@ -18,7 +18,7 @@ export default async function Home() {
     <main className="">
       <h1 className="mb-8 mt-10 text-3xl font-extrabold"> Hello {session.user.name}!</h1>
       <div className="grid grid-cols-2 gap-4">
-        {bankAccounts.map((ba) => (
+        {bankAccounts.items.map((ba) => (
           <Link key={ba.id} href={`/bankAccount/${ba.id}`}>
             <BankAccountCard bankAccount={ba} />
           </Link>

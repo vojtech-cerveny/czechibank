@@ -1,6 +1,6 @@
 "use server";
 import prisma from "@/lib/db";
-import { errorResponse, successResponse } from "@/lib/response";
+import { ApiErrorCode, errorResponse, successResponse } from "@/lib/response";
 import { Currency } from "@prisma/client";
 
 function generateRandomDigits(digitCount: number) {
@@ -11,15 +11,47 @@ function generateRandomDigits(digitCount: number) {
   return randomNumber;
 }
 
-export async function getBankAccountsByUserId(userId: string) {
+export type PaginationParams = {
+  page?: number;
+  limit?: number;
+};
+
+export type PaginatedResult<T> = {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+export async function getBankAccountsByUserId(
+  userId: string,
+  { page = 1, limit = 10 }: PaginationParams = {},
+): Promise<PaginatedResult<any>> {
   if (!userId) throw new Error("userId is required");
-  const bankAccounts = await prisma.bankAccount.findMany({
-    where: {
-      userId: userId,
-    },
-  });
-  console.log(bankAccounts);
-  return bankAccounts;
+
+  const skip = (page - 1) * limit;
+
+  const [bankAccounts, total] = await Promise.all([
+    prisma.bankAccount.findMany({
+      where: {
+        userId: userId,
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.bankAccount.count({
+      where: {
+        userId: userId,
+      },
+    }),
+  ]);
+
+  return {
+    items: bankAccounts,
+    total,
+    page,
+    limit,
+  };
 }
 
 export async function createBankAccount({
@@ -47,7 +79,7 @@ export async function createBankAccount({
       },
     },
   });
-  if (!bankAccount) return errorResponse("Bank account not created");
+  if (!bankAccount) return errorResponse("Bank account not created", ApiErrorCode.INTERNAL_ERROR);
   return successResponse("Bank account created successfully", bankAccount);
 }
 
@@ -59,7 +91,7 @@ export async function getBankAccountByIdAndUserId(bankAccountId: string, userId:
     },
   });
 
-  if (!bankAccount) return errorResponse("Bank account not found");
+  if (!bankAccount) return errorResponse("Bank account not found", ApiErrorCode.NOT_FOUND);
   return successResponse("Bank account found", bankAccount);
 }
 
@@ -94,16 +126,35 @@ export async function deleteBankAccount(bankAccountId: string) {
   return bankAccount;
 }
 
-export async function getAllBankAccounts() {
-  const bankAccounts = await prisma.bankAccount.findMany({
-    select: {
-      number: true,
-      user: {
-        select: {
-          name: true,
+export async function getAllBankAccounts({ page = 1, limit = 10 }: PaginationParams = {}): Promise<
+  PaginatedResult<any>
+> {
+  const skip = (page - 1) * limit;
+
+  const [bankAccounts, total] = await Promise.all([
+    prisma.bankAccount.findMany({
+      select: {
+        number: true,
+        id: true,
+        // balance: true,
+        // currency: true,
+        name: true,
+        user: {
+          select: {
+            name: true,
+          },
         },
       },
-    },
-  });
-  return bankAccounts;
+      skip,
+      take: limit,
+    }),
+    prisma.bankAccount.count(),
+  ]);
+
+  return {
+    items: bankAccounts,
+    total,
+    page,
+    limit,
+  };
 }
