@@ -39,3 +39,7 @@ next-env.d.ts
 .env
 # Postgres
 /data
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

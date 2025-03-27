@@ -9,13 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAllTransactionsByUserAndBankAccountId } from "@/domain/transaction-domain/transaction-repository";
+import transactionService from "@/domain/transaction-domain/transaction-service";
 import { Transaction, User } from "@prisma/client";
 import { UserAvatar } from "../user/avatar";
 import { AlertDestructive } from "./alert";
 
 export async function TransactionTable({ bankAccountId }: { bankAccountId: string }) {
-  const transactions = await getAllTransactionsByUserAndBankAccountId(bankAccountId);
+  const transactions = await transactionService.getAllTransactionsByUserAndBankAccountId(bankAccountId);
 
   type TransactionWithUsers = Transaction & {
     to: { user: User };

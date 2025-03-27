@@ -1,81 +1,18 @@
 "use server";
 import prisma from "@/lib/db";
-import { errorResponse, successResponse } from "@/lib/response";
-import { generateRandomAvatarConfig } from "@/lib/utils";
+import { ApiErrorCode, errorResponse, successResponse } from "@/lib/response";
 import { Prisma } from "@prisma/client";
-import { createBankAccount } from "../bankAccount-domain/ba-repository";
-import { processUserSignIn } from "./user-actions";
-import { UserSchema } from "./user-schema";
 
-export async function registerUser(userData: Omit<Prisma.UserCreateInput, "avatarConfig">) {
-  const parsedUser = UserSchema.safeParse(userData);
-
-  if (!parsedUser.success) {
-    return errorResponse("Invalid user data", parsedUser.error);
+export async function registerUser(user: Prisma.UserCreateInput) {
+  const prismaUser = await prisma.user.create({
+    data: {
+      ...user,
+    },
+  });
+  if ("error" in prismaUser) {
+    return errorResponse("An error occurred while creating the user", ApiErrorCode.OPERATION_FAILED);
   }
-
-  const user = parsedUser.data;
-
-  if (!(await isEmailUnique(user.email))) {
-    return errorResponse("Email already exists");
-  }
-
-  try {
-    const avatarConfig = generateRandomAvatarConfig();
-
-    const prismaUser = await prisma.user.create({
-      data: {
-        email: user.email,
-        name: user.name,
-        password: user.password,
-        sex: user.sex,
-        avatarConfig: JSON.stringify(avatarConfig),
-      },
-    });
-    await createBankAccount({ userId: prismaUser.id, currency: "CZECHITOKEN" });
-    await processUserSignIn({ email: user.email, password: user.password });
-    // redirect("/");
-
-    return successResponse("User created successfully", prismaUser);
-  } catch (e) {
-    return errorResponse("An error occurred while creating the user", e);
-  }
-}
-
-// TODO: this is quick fix for API - but it should be one function with registerUser
-export async function registerUserAPI(userData: Omit<Prisma.UserCreateInput, "avatarConfig">) {
-  const parsedUser = UserSchema.safeParse(userData);
-
-  if (!parsedUser.success) {
-    return errorResponse("Invalid user data", parsedUser.error);
-  }
-
-  const user = parsedUser.data;
-
-  if (!(await isEmailUnique(user.email))) {
-    return errorResponse("Email already exists");
-  }
-
-  try {
-    const avatarConfig = generateRandomAvatarConfig();
-
-    const prismaUser = await prisma.user.create({
-      data: {
-        email: user.email,
-        name: user.name,
-        password: user.password,
-        sex: user.sex,
-        avatarConfig: JSON.stringify(avatarConfig),
-      },
-    });
-    await createBankAccount({ userId: prismaUser.id, currency: "CZECHITOKEN" });
-
-    // redirect("/");
-
-    return successResponse("User created successfully", prismaUser);
-  } catch (e) {
-    return errorResponse("An error occurred while creating the user", e);
-  }
+  return successResponse("User created successfully", prismaUser);
 }
 
 export async function isEmailUnique(email: string) {
@@ -89,21 +26,11 @@ export async function isEmailUnique(email: string) {
 }
 
 export async function signInUser(email: string, password: string) {
-  const user = await prisma.user.findUnique({
+  return await prisma.user.findUnique({
     where: {
       email: email,
     },
   });
-
-  if (user === null) {
-    return errorResponse("User not found");
-  }
-
-  if (user.password !== password) {
-    return errorResponse("Invalid password");
-  }
-
-  return successResponse("User signed in", user);
 }
 
 export async function getAllUsers() {
@@ -125,9 +52,7 @@ export async function regenerateApiKey(userId: string) {
   return successResponse("API key regenerated", user);
 }
 
-export async function regenerateAvatarConfig(userId: string) {
-  const avatarConfig = generateRandomAvatarConfig();
-
+export async function regenerateAvatarConfig(userId: string, avatarConfig: string) {
   const user = await prisma.user.update({
     where: {
       id: userId,

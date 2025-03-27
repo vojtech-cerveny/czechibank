@@ -1,7 +1,7 @@
 "use client";
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { sendMoneyToBankNumber } from "@/domain/transaction-domain/transaction-repository";
+import transactionService from "@/domain/transaction-domain/transaction-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Prisma } from "@prisma/client";
 import { useForm } from "react-hook-form";
@@ -29,6 +29,7 @@ export function TransactionTranfer({
   balance: number;
   bankAccountNumber: string;
 }) {
+  console.log(userId, bankAccountNumber, balance);
   const { toast } = useToast();
   const users = allUsers
     .filter((user) => user.id !== userId)
@@ -61,7 +62,7 @@ export function TransactionTranfer({
   });
 
   const action: () => void = form.handleSubmit(async (data) => {
-    const response = await sendMoneyToBankNumber({
+    const response = await transactionService.sendMoneyToBankNumber({
       amount: data.amount,
       currency: "CZECHITOKEN",
       fromBankNumber: bankAccountNumber,
@@ -69,6 +70,7 @@ export function TransactionTranfer({
       userId: userId,
       applicationType: "web",
     });
+
     if (response.success) {
       toast({
         title: "💸 Transaction created!",
@@ -76,7 +78,13 @@ export function TransactionTranfer({
           <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbGw2OXB2cmMydW1kb3k5cnpub2x4bm02bmhzZm9lb3E3ZTRxdnhwNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HFkA6omUyjVYqw8/giphy.gif" />
         ),
       });
+    } else {
+      toast({
+        title: "💸 Transaction failed!",
+        description: response.error.message,
+      });
     }
+
     form.resetField("amount");
   });
   return (

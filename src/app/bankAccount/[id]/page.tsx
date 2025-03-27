@@ -1,9 +1,10 @@
+"use server";
 import { TransactionTable } from "@/components/transactions/table";
 import { TransactionTranfer } from "@/components/transactions/transfer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Meteors } from "@/components/ui/meteors";
-import { getBankAccountByIdAndUserId } from "@/domain/bankAccount-domain/ba-repository";
-import { getAllUsers } from "@/domain/user-domain/user-repository";
+import bankAccountService from "@/domain/bankAccount-domain/ba-service";
+import userService from "@/domain/user-domain/user.service";
 import { getSession } from "@/lib/auth";
 import { RocketIcon } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
@@ -28,11 +29,11 @@ export default async function BankAccountPage({ params }: { params: { id: string
   if (!session) {
     redirect("/signin");
   }
-  const bankAccount = await getBankAccountByIdAndUserId(params.id, session.user.id);
+  const bankAccount = await bankAccountService.getBankAccountById(params.id, session.user.id);
   if (!bankAccount.success) {
     notFound();
   }
-  const allUsers = await getAllUsers();
+  const allUsers = await userService.getAllUsers();
 
   if (!session || !bankAccount) {
     <h1 className="my-8 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">404</h1>;
@@ -76,7 +77,10 @@ export default async function BankAccountPage({ params }: { params: { id: string
               <TransactionTranfer
                 bankAccountNumber={bankAccount.data.number}
                 userId={session.user.id}
-                allUsers={JSON.parse(JSON.stringify(allUsers.data))}
+                allUsers={allUsers.data.data.map((user) => ({
+                  ...user,
+                  BankAccount: user.BankAccount,
+                }))}
                 balance={bankAccount.data.balance}
               />
             </CardContent>

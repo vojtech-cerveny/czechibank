@@ -1,0 +1,33 @@
+import { expect, test } from "@playwright/test";
+
+// Co testuju
+test.describe("Czechibank login page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("https://czechibank.ostrava.digital/");
+  });
+
+  // jak testuju (co ocekavam)
+  test("has title", async ({ page }) => {
+    // Expect a title "to contain" a substring.
+    await expect(page).toHaveTitle(/CzechiBank/);
+  });
+
+  test("redirects me to /signin", async ({ page }) => {
+    // Expect a title "to contain" a substring.
+    await expect(page).toHaveURL("https://czechibank.ostrava.digital/signin");
+  });
+
+  test("can login with correct credentials", async ({ page }) => {
+    const EMAIL = "zachranNasa@pejsekAKocicka.cz";
+    const PASSWORD = "PejsekAKocicka123";
+    const NAME = "Pejsek a Kocicka";
+
+    await page.fill('input[name="email"]', EMAIL);
+    await page.fill('input[name="password"]', PASSWORD);
+
+    await page.click('button[type="submit"]');
+
+    await expect(page).toHaveURL("https://czechibank.ostrava.digital/");
+    await expect(page.getByRole("heading", { name: `Hello ${NAME}!` })).toBeVisible();
+  });
+});

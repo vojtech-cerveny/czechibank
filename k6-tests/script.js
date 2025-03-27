@@ -1,10 +1,10 @@
-import { check, sleep } from "k6";
+import { check } from "k6";
 import http from "k6/http";
 export const options = {
   stages: [
-    { duration: "1m", target: 20 },
-    { duration: "1m30s", target: 10 },
-    { duration: "20s", target: 0 },
+    { duration: "15s", target: 50 },
+    // { duration: "1m30s", target: 10 },
+    // { duration: "20s", target: 0 },
   ],
 };
 export function setup() {
@@ -17,7 +17,7 @@ export default function () {
   const res1 = http.post(
     "https://czechibank.ostrava.digital/api/transactions/create",
     JSON.stringify({
-      to: "555555555555/5555",
+      to: "594810059418/5555",
       amount: 1,
     }),
     {
@@ -34,5 +34,5 @@ export default function () {
     },
   });
   check(res2, { "status was 200": (r) => r.status == 200 });
-  sleep(1);
+  // sleep(1);
 }
