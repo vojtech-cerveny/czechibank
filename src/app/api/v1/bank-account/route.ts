@@ -1,7 +1,8 @@
 import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
 import bankAccountService from "@/domain/bankAccount-domain/ba-service";
+import { corsOptionsResponse, corsResponse } from "@/lib/cors";
 import { ApiErrorCode, createPaginationMeta, successResponse } from "@/lib/response";
-import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from "../routes";
+import { ApiError, DELETE, HEAD, PATCH, POST, PUT, handleErrors } from "../routes";
 
 /**
  * @swagger
@@ -81,12 +82,16 @@ import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from 
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
+export async function OPTIONS() {
+  return corsOptionsResponse();
+}
+
 export async function GET(request: Request) {
   try {
     console.log("GET /bank-account/route.ts");
     const user = await checkUserAuthOrThrowError(request);
     if ("error" in user) {
-      return Response.json(user, { status: 401 });
+      return corsResponse(Response.json(user, { status: 401 }));
     }
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
@@ -95,23 +100,26 @@ export async function GET(request: Request) {
     const result = await bankAccountService.getMyBankAccounts(user.id, { page, limit });
 
     if ("error" in result) {
-      return Response.json(result);
+      return corsResponse(Response.json(result));
     }
 
-    return Response.json(
-      successResponse(
-        "Bank accounts retrieved successfully",
-        { bankAccounts: result.data.items },
-        {
-          timestamp: new Date().toISOString(),
-          requestId: request.headers.get("x-request-id") || undefined,
-          pagination: createPaginationMeta(result.data.page, result.data.limit, result.data.total),
-        },
+    return corsResponse(
+      Response.json(
+        successResponse(
+          "Bank accounts retrieved successfully",
+          { bankAccounts: result.data.items },
+          {
+            timestamp: new Date().toISOString(),
+            requestId: request.headers.get("x-request-id") || undefined,
+            pagination: createPaginationMeta(result.data.page, result.data.limit, result.data.total),
+          },
+        ),
       ),
     );
   } catch (error) {
     if (error instanceof ApiError) {
-      return handleErrors(error);
+      const errorResponse = await handleErrors(error);
+      return corsResponse(errorResponse);
     } else {
       throw new ApiError("Internal Server Error", 500, ApiErrorCode.INTERNAL_ERROR, [
         { code: ApiErrorCode.INTERNAL_ERROR, message: error instanceof Error ? error.message : "Unknown error" },
@@ -120,4 +128,4 @@ export async function GET(request: Request) {
   }
 }
 
-export { DELETE, HEAD, OPTIONS, PATCH, POST, PUT };
+export { DELETE, HEAD, PATCH, POST, PUT };
