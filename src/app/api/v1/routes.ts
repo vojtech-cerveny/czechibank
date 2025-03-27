@@ -7,9 +7,26 @@ export async function handleErrors(error: ApiError) {
   return Response.json(errorResponse(error.message, error.code, error.details), { status: error.statusCode });
 }
 
-export const DELETE = "DELETE";
-export const HEAD = "HEAD";
-export const OPTIONS = "OPTIONS";
-export const PATCH = "PATCH";
-export const POST = "POST";
-export const PUT = "PUT";
+export async function DELETE(request: Request) {
+  return new Response("Method Not Allowed", { status: 405 });
+}
+
+export async function HEAD(request: Request) {
+  return new Response("Method Not Allowed", { status: 405 });
+}
+
+export async function OPTIONS(request: Request) {
+  return new Response("Method Not Allowed", { status: 405 });
+}
+
+export async function PATCH(request: Request) {
+  return new Response("Method Not Allowed", { status: 405 });
+}
+
+export async function POST(request: Request) {
+  return new Response("Method Not Allowed", { status: 405 });
+}
+
+export async function PUT(request: Request) {
+  return new Response("Method Not Allowed", { status: 405 });
+}

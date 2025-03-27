@@ -79,6 +79,15 @@ export async function POST(request: Request) {
       ]);
     }
 
+    if ("error" in user) {
+      throw new ApiError("User not found", 404, ApiErrorCode.NOT_FOUND, [
+        {
+          code: ApiErrorCode.NOT_FOUND,
+          message: "User not found",
+        },
+      ]);
+    }
+
     const result = await transactionService.sendMoneyToBankNumber({
       amount,
       fromBankNumber,
