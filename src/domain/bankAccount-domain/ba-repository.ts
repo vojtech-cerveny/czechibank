@@ -1,7 +1,6 @@
 "use server";
 import prisma from "@/lib/db";
-import { ApiErrorCode, errorResponse, successResponse } from "@/lib/response";
-import { Currency } from "@prisma/client";
+import { BankAccount, Currency, User } from "@prisma/client";
 
 function generateRandomDigits(digitCount: number) {
   let randomNumber = "";
@@ -79,11 +78,16 @@ export async function createBankAccount({
       },
     },
   });
-  if (!bankAccount) return errorResponse("Bank account not created", ApiErrorCode.INTERNAL_ERROR);
-  return successResponse("Bank account created successfully", bankAccount);
+
+  if (!bankAccount) {
+    throw new Error("Failed to create bank account");
+  }
+
+  return bankAccount;
 }
 
 export async function getBankAccountByIdAndUserId(bankAccountId: string, userId: string) {
+  console.log(bankAccountId, userId);
   const bankAccount = await prisma.bankAccount.findFirst({
     where: {
       id: bankAccountId,
@@ -91,8 +95,17 @@ export async function getBankAccountByIdAndUserId(bankAccountId: string, userId:
     },
   });
 
-  if (!bankAccount) return errorResponse("Bank account not found", ApiErrorCode.NOT_FOUND);
-  return successResponse("Bank account found", bankAccount);
+  return bankAccount;
+}
+
+export async function getBankAccountByNumber(bankNumber: string) {
+  const bankAccount = await prisma.bankAccount.findFirst({
+    where: {
+      number: bankNumber,
+    },
+  });
+
+  return bankAccount;
 }
 
 export async function getBankAccountByAPIKey(apiKey: string) {
@@ -113,6 +126,10 @@ export async function getBankAccountByAPIKey(apiKey: string) {
     },
   });
 
+  if (!bankAccount) {
+    throw new Error("Bank account not found");
+  }
+
   return bankAccount;
 }
 
@@ -127,7 +144,7 @@ export async function deleteBankAccount(bankAccountId: string) {
 }
 
 export async function getAllBankAccounts({ page = 1, limit = 10 }: PaginationParams = {}): Promise<
-  PaginatedResult<any>
+  PaginatedResult<Pick<BankAccount, "number" | "name"> & { user: Pick<User, "name"> }>
 > {
   const skip = (page - 1) * limit;
 
@@ -135,7 +152,7 @@ export async function getAllBankAccounts({ page = 1, limit = 10 }: PaginationPar
     prisma.bankAccount.findMany({
       select: {
         number: true,
-        id: true,
+        // id: true,
         // balance: true,
         // currency: true,
         name: true,
@@ -147,6 +164,9 @@ export async function getAllBankAccounts({ page = 1, limit = 10 }: PaginationPar
       },
       skip,
       take: limit,
+      orderBy: {
+        number: "asc",
+      },
     }),
     prisma.bankAccount.count(),
   ]);

@@ -9,7 +9,7 @@ export const CreateTransactionNumberToNumberSchema = z.object({
   currency: z.custom<Currency>(),
   toBankNumber: z.string().endsWith("5555").length(17),
   userId: z.string(),
-  fromBankNumber: z.string().optional(),
+  fromBankNumber: z.string(),
 });
 
 export const CreateTransactionUserIdToUserIdUserSchema = z.object({

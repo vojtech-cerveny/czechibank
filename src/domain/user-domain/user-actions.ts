@@ -1,9 +1,10 @@
 "use server";
+
 import { encrypt } from "@/lib/auth";
 import { Sex } from "@prisma/client";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { registerUser, signInUser } from "./user-repository";
+import userService from "./user.service";
 
 export async function processUserRegistration(formData: FormData) {
   const userData = {
@@ -13,7 +14,7 @@ export async function processUserRegistration(formData: FormData) {
     sex: formData.get("sex") as Sex,
   };
 
-  const response = await registerUser(userData);
+  const response = await userService.createUser(userData);
   if (!response.success) {
     await processUserSignIn({ email: userData.email, password: userData.password });
   }
@@ -21,7 +22,7 @@ export async function processUserRegistration(formData: FormData) {
 }
 
 export async function processUserSignIn({ email, password }: { email: string; password: string }) {
-  const response = await signInUser(email, password);
+  const response = await userService.signInUser(email, password);
 
   console.log(response.success);
   if (!response.success) {

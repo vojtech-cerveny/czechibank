@@ -1,5 +1,6 @@
+import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
 import { ApiErrorCode, successResponse } from "@/lib/response";
-import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, checkUserAuthOrThrowError, handleErrors } from "../routes";
+import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from "../routes";
 
 /**
  * @swagger

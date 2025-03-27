@@ -1,17 +1,7 @@
-import { getAllBankAccounts } from "@/domain/bankAccount-domain/ba-repository";
-import { ApiErrorCode, successResponse } from "@/lib/response";
-import {
-  ApiError,
-  DELETE,
-  HEAD,
-  OPTIONS,
-  PATCH,
-  POST,
-  PUT,
-  checkUserAuthOrThrowError,
-  handleErrors,
-} from "../../routes";
-
+import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
+import bankAccountService from "@/domain/bankAccount-domain/ba-service";
+import { ApiErrorCode, errorResponse, successResponse } from "@/lib/response";
+import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from "../../routes";
 /**
  * @swagger
  * /bank-account/get-all:
@@ -70,24 +60,27 @@ import {
 export async function GET(request: Request) {
   try {
     // this returns ApiError if the user is not authenticated
-    await checkUserAuthOrThrowError(request);
-
+    const user = await checkUserAuthOrThrowError(request);
+    if ("error" in user) {
+      return Response.json(user, { status: 401 });
+    }
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
 
     if (page < 1 || limit < 1) {
-      throw new ApiError("Invalid pagination parameters", 400, ApiErrorCode.VALIDATION_ERROR, [
-        {
-          code: ApiErrorCode.VALIDATION_ERROR,
-          message: "Page and limit must be positive numbers",
-        },
-      ]);
+      return Response.json(errorResponse("Invalid pagination parameters", ApiErrorCode.VALIDATION_ERROR), {
+        status: 422,
+      });
     }
 
-    const result = await getAllBankAccounts({ page, limit });
+    const result = await bankAccountService.getAllBankAccounts({ page, limit });
 
-    return Response.json(successResponse("Bank accounts retrieved successfully", { bankAccounts: result.items }), {
+    if ("error" in result) {
+      return Response.json(result);
+    }
+
+    return Response.json(successResponse("Bank accounts retrieved successfully", { bankAccounts: result.data.items }), {
       status: 200,
     });
   } catch (error) {

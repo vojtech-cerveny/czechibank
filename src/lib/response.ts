@@ -1,3 +1,5 @@
+import { ZodSchema } from "zod";
+
 export type PaginationMeta = {
   page: number;
   limit: number;
@@ -79,6 +81,17 @@ export function createPaginationMeta(page: number, limit: number, total: number)
   };
 }
 
+export async function validateEventHandler<TInput, TOutput>(
+  schema: ZodSchema<TOutput, any, TInput>,
+  event: TInput,
+): Promise<TOutput | ErrorResponse> {
+  const result = await schema.safeParseAsync(event);
+  if (!result.success) {
+    return errorResponse("Validation error", "VALIDATION_ERROR", result.error.errors);
+  }
+  return result.data;
+}
+
 // Error codes enum for consistent error reporting
 export enum ApiErrorCode {
   OPERATION_FAILED = "OPERATION_FAILED",
@@ -89,4 +102,8 @@ export enum ApiErrorCode {
   VALIDATION_ERROR = "VALIDATION_ERROR",
   INTERNAL_ERROR = "INTERNAL_ERROR",
   RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED",
+
+  // FE errors
+  INVALID_PASSWORD = "INVALID_PASSWORD",
+  EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS",
 }

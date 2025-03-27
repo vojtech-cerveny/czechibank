@@ -1,7 +1,8 @@
-import { createBankAccount } from "@/domain/bankAccount-domain/ba-repository";
-import { ApiErrorCode, successResponse } from "@/lib/response";
-import { ApiError, checkUserAuthOrThrowError, handleErrors } from "../../routes";
-
+import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
+import { BankAccountSchema } from "@/domain/bankAccount-domain/ba-schema";
+import bankAccountService from "@/domain/bankAccount-domain/ba-service";
+import { ApiErrorCode, errorResponse, successResponse } from "@/lib/response";
+import { ApiError, handleErrors } from "../../routes";
 /**
  * @swagger
  * /bank-account/create:
@@ -48,22 +49,20 @@ import { ApiError, checkUserAuthOrThrowError, handleErrors } from "../../routes"
 export async function POST(request: Request) {
   try {
     const user = await checkUserAuthOrThrowError(request);
-
+    if ("error" in user) {
+      return Response.json(user, { status: 401 });
+    }
     const body = await request.json();
-    const { currency } = body;
+    const parsedBody = BankAccountSchema.safeParse(body);
 
-    if (!currency) {
-      throw new ApiError("Missing required fields", 400, ApiErrorCode.VALIDATION_ERROR, [
-        {
-          code: ApiErrorCode.VALIDATION_ERROR,
-          message: "Currency is required",
-        },
-      ]);
+    if (!parsedBody.success) {
+      return Response.json(errorResponse(parsedBody.error.message, ApiErrorCode.VALIDATION_ERROR));
     }
 
-    const result = await createBankAccount({
+    const result = await bankAccountService.createBankAccount({
       userId: user.id,
-      currency,
+      currency: parsedBody.data.currency,
+      name: parsedBody.data.name || "New Bank Account",
     });
 
     return Response.json(successResponse("Bank account created successfully", { bankAccount: result }), {

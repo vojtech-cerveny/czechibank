@@ -1,6 +1,7 @@
-import { getAllTransactionsByUserIdForAPI } from "@/domain/transaction-domain/transaction-repository";
-import { ApiErrorCode, successResponse } from "@/lib/response";
-import { ApiError, checkUserAuthOrThrowError, handleErrors } from "../routes";
+import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
+import transactionService from "@/domain/transaction-domain/transaction-service";
+import { ApiErrorCode } from "@/lib/response";
+import { ApiError, handleErrors } from "../routes";
 export { DELETE, HEAD, OPTIONS, PATCH, PUT } from "../routes";
 
 /**
@@ -80,28 +81,19 @@ export async function GET(request: Request) {
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const order = searchParams.get("sortOrder") || (sortBy === "createdAt" ? "desc" : "asc");
 
-    if (page < 1 || limit < 1) {
-      throw new ApiError("Invalid pagination parameters", 400, ApiErrorCode.VALIDATION_ERROR, [
-        {
-          code: ApiErrorCode.VALIDATION_ERROR,
-          message: "Page and limit must be positive numbers",
-        },
-      ]);
-    }
-
     const user = await checkUserAuthOrThrowError(request);
-    const result = await getAllTransactionsByUserIdForAPI(user.id, sortBy, order as "asc" | "desc");
-
-    return Response.json(
-      successResponse(
-        "Transactions retrieved successfully",
-        { transactions: result },
-        {
-          timestamp: new Date().toISOString(),
-          requestId: request.headers.get("x-request-id") || undefined,
-        },
-      ),
+    if ("error" in user) {
+      return Response.json(user, { status: 401 });
+    }
+    const result = await transactionService.getAllTransactionsByIdFromAPI(
+      user.id,
+      sortBy,
+      order as "asc" | "desc",
+      page,
+      limit,
     );
+
+    return Response.json(result);
   } catch (error) {
     if (error instanceof ApiError) {
       return handleErrors(error);

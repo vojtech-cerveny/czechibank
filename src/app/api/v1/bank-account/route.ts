@@ -1,6 +1,7 @@
-import { getBankAccountsByUserId } from "@/domain/bankAccount-domain/ba-repository";
+import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
+import bankAccountService from "@/domain/bankAccount-domain/ba-service";
 import { ApiErrorCode, createPaginationMeta, successResponse } from "@/lib/response";
-import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, checkUserAuthOrThrowError, handleErrors } from "../routes";
+import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from "../routes";
 
 /**
  * @swagger
@@ -83,30 +84,28 @@ import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, checkUserAuthOrThrow
 export async function GET(request: Request) {
   try {
     console.log("GET /bank-account/route.ts");
+    const user = await checkUserAuthOrThrowError(request);
+    if ("error" in user) {
+      return Response.json(user, { status: 401 });
+    }
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
 
-    if (page < 1 || limit < 1) {
-      throw new ApiError("Invalid pagination parameters", 400, ApiErrorCode.VALIDATION_ERROR, [
-        {
-          code: ApiErrorCode.VALIDATION_ERROR,
-          message: "Page and limit must be positive numbers",
-        },
-      ]);
-    }
+    const result = await bankAccountService.getMyBankAccounts(user.id, { page, limit });
 
-    const user = await checkUserAuthOrThrowError(request);
-    const result = await getBankAccountsByUserId(user.id, { page, limit });
+    if ("error" in result) {
+      return Response.json(result);
+    }
 
     return Response.json(
       successResponse(
         "Bank accounts retrieved successfully",
-        { bankAccounts: result.items },
+        { bankAccounts: result.data.items },
         {
           timestamp: new Date().toISOString(),
           requestId: request.headers.get("x-request-id") || undefined,
-          pagination: createPaginationMeta(result.page, result.limit, result.total),
+          pagination: createPaginationMeta(result.data.page, result.data.limit, result.data.total),
         },
       ),
     );

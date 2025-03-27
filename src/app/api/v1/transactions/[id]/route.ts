@@ -1,16 +1,7 @@
-import { getTransactionDetailById } from "@/domain/transaction-domain/transaction-repository";
-import { ApiErrorCode, successResponse } from "@/lib/response";
-import {
-  ApiError,
-  DELETE,
-  HEAD,
-  OPTIONS,
-  PATCH,
-  POST,
-  PUT,
-  checkUserAuthOrThrowError,
-  handleErrors,
-} from "../../routes";
+import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
+import transactionService from "@/domain/transaction-domain/transaction-service";
+import { ApiErrorCode } from "@/lib/response";
+import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from "../../routes";
 
 /**
  * @swagger
@@ -59,21 +50,13 @@ import {
 export async function GET(request: Request, context: { params: { id: string } }) {
   try {
     const user = await checkUserAuthOrThrowError(request);
-
-    const transaction = await getTransactionDetailById(context.params.id, user.id);
-
-    if (!transaction) {
-      throw new ApiError("Transaction not found", 404, ApiErrorCode.NOT_FOUND, [
-        {
-          code: ApiErrorCode.NOT_FOUND,
-          message: "Transaction not found",
-        },
-      ]);
+    if ("error" in user) {
+      return Response.json(user, { status: 401 });
     }
 
-    return Response.json(successResponse("Transaction details retrieved successfully", { transaction }), {
-      status: 200,
-    });
+    const transaction = await transactionService.getTransactionDetailByTransactionId(context.params.id, user.id);
+
+    return Response.json(transaction);
   } catch (error) {
     if (error instanceof ApiError) {
       return handleErrors(error);

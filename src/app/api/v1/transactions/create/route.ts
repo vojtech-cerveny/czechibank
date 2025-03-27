@@ -1,7 +1,7 @@
-import { sendMoneyToBankNumber } from "@/domain/transaction-domain/transaction-repository";
+import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
+import transactionService from "@/domain/transaction-domain/transaction-service";
 import { ApiErrorCode } from "@/lib/response";
-import { ApiError, checkUserAuthOrThrowError, handleErrors } from "../../routes";
-
+import { ApiError, handleErrors } from "../../routes";
 /**
  * @swagger
  * /transactions/create:
@@ -56,7 +56,9 @@ export async function POST(request: Request) {
     const user = await checkUserAuthOrThrowError(request);
 
     const body = await request.json();
-    const { amount, toBankNumber } = body;
+    console.log("body", body);
+    const { amount, toBankNumber, fromBankNumber }: { amount: number; toBankNumber: string; fromBankNumber: string } =
+      body;
 
     if (!amount || !toBankNumber) {
       throw new ApiError("Missing required fields", 400, ApiErrorCode.VALIDATION_ERROR, [
@@ -67,7 +69,7 @@ export async function POST(request: Request) {
       ]);
     }
 
-    if (amount <= 0) {
+    if (!(amount > 0)) {
       throw new ApiError("Invalid amount", 400, ApiErrorCode.VALIDATION_ERROR, [
         {
           code: ApiErrorCode.VALIDATION_ERROR,
@@ -77,13 +79,20 @@ export async function POST(request: Request) {
       ]);
     }
 
-    const result = await sendMoneyToBankNumber({
+    const result = await transactionService.sendMoneyToBankNumber({
       amount,
+      fromBankNumber,
       toBankNumber,
       userId: user.id,
       currency: "CZECHITOKEN",
       applicationType: "api",
     });
+
+    if (!result.success) {
+      console.log(result);
+      console.log(result.error.details);
+      return Response.json(result, { status: result.error.code === ApiErrorCode.NOT_FOUND ? 404 : 400 });
+    }
 
     return Response.json(result, { status: 201 });
   } catch (error) {

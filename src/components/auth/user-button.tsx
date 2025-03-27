@@ -5,7 +5,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getUserById } from "@/domain/user-domain/user-repository";
+import userService from "@/domain/user-domain/user.service";
 import { getSession } from "@/lib/auth";
 import Link from "next/link";
 import { Button } from "../ui/button";
@@ -17,7 +17,13 @@ export default async function UserButton() {
   const session = await getSession();
 
   if (!session?.user) return <SignIn />;
-  const user = await getUserById(session.user.id);
+  const userResponse = await userService.getUserById(session.user.id);
+
+  if (!userResponse.success) {
+    return <SignIn />;
+  }
+
+  const user = userResponse.data;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

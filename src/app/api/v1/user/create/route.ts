@@ -1,8 +1,8 @@
-export { DELETE, GET, HEAD, OPTIONS, PATCH, PUT } from "../../routes";
+export { DELETE, HEAD, OPTIONS, PATCH, PUT } from "../../routes";
 
-import { isEmailUnique, registerUserAPI } from "@/domain/user-domain/user-repository";
 import { UserSchema } from "@/domain/user-domain/user-schema";
-import { ApiErrorCode, errorResponse } from "@/lib/response";
+import userService from "@/domain/user-domain/user.service";
+import { validateEventHandler } from "@/lib/response";
 import { ApiError, handleErrors } from "../../routes";
 
 /**
@@ -49,20 +49,18 @@ import { ApiError, handleErrors } from "../../routes";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const parsedUser = UserSchema.safeParse(body);
-
-    if (!parsedUser.success) {
-      return Response.json(errorResponse("Invalid user data", ApiErrorCode.VALIDATION_ERROR));
+    const parsedUser = await validateEventHandler(UserSchema, body);
+    if ("error" in parsedUser) {
+      return Response.json(parsedUser, { status: 422 });
     }
 
-    const user = parsedUser.data;
+    const response = await userService.createUser(parsedUser);
 
-    if (!(await isEmailUnique(user.email))) {
-      return Response.json(errorResponse("Email already exists", ApiErrorCode.VALIDATION_ERROR));
+    if (!response.success) {
+      return Response.json(response);
     }
 
-    const response = await registerUserAPI(user);
-    return Response.json(response, { status: response.success ? 201 : 400 });
+    return Response.json(response, { status: 201 });
   } catch (error) {
     if (error instanceof ApiError) {
       return handleErrors(error);

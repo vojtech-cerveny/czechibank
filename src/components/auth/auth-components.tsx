@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { processUserSignIn } from "@/domain/user-domain/user-actions";
+import * as userActions from "@/domain/user-domain/user-actions";
 import { useToast } from "../ui/use-toast";
 
 export function SignIn({
@@ -41,7 +41,7 @@ export function SignIn({
   });
 
   const action: () => void = form.handleSubmit(async (data) => {
-    const response = await processUserSignIn(data);
+    const response = await userActions.processUserSignIn(data);
     setServerResponse(response);
     if (response.success) {
       toast({

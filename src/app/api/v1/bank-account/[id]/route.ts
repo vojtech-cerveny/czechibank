@@ -1,6 +1,8 @@
-import { deleteBankAccount, getBankAccountByIdAndUserId } from "@/domain/bankAccount-domain/ba-repository";
-import { ApiErrorCode, successResponse } from "@/lib/response";
-import { ApiError, checkUserAuthOrThrowError, handleErrors } from "../../routes";
+import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
+import bankAccountService from "@/domain/bankAccount-domain/ba-service";
+import { ApiErrorCode, successResponse, validateEventHandler } from "@/lib/response";
+import { z } from "zod";
+import { ApiError, handleErrors } from "../../routes";
 
 /**
  * @swagger
@@ -84,16 +86,23 @@ import { ApiError, checkUserAuthOrThrowError, handleErrors } from "../../routes"
 
 export async function GET(request: Request, context: { params: { id: string } }) {
   try {
-    const user = await checkUserAuthOrThrowError(request);
-    const bankAccountResponse = await getBankAccountByIdAndUserId(context.params.id, user.id);
+    console.log("GET /bank-account/[id]/route.ts");
+    const schema = z.object({
+      id: z.string().cuid(),
+    });
+    const parsedId = await validateEventHandler(schema, { id: context.params.id });
+    if ("error" in parsedId) {
+      return Response.json(parsedId, { status: 422 });
+    }
 
-    if (!bankAccountResponse.success) {
-      throw new ApiError(bankAccountResponse.message, 404, ApiErrorCode.NOT_FOUND, [
-        {
-          code: ApiErrorCode.NOT_FOUND,
-          message: bankAccountResponse.message,
-        },
-      ]);
+    const user = await checkUserAuthOrThrowError(request);
+    if ("error" in user) {
+      return Response.json(user, { status: 401 });
+    }
+    const bankAccountResponse = await bankAccountService.getBankAccountById(parsedId.id, user.id);
+
+    if ("error" in bankAccountResponse) {
+      return Response.json(bankAccountResponse);
     }
 
     return Response.json(
@@ -114,9 +123,16 @@ export async function GET(request: Request, context: { params: { id: string } })
 export async function DELETE(request: Request, context: { params: { id: string } }) {
   try {
     const user = await checkUserAuthOrThrowError(request);
-
+    if ("error" in user) {
+      return Response.json(user, { status: 401 });
+    }
     // First verify the user owns this account
-    const bankAccount = await getBankAccountByIdAndUserId(context.params.id, user.id);
+    const bankAccountResponse = await bankAccountService.getBankAccountById(context.params.id, user.id);
+    if ("error" in bankAccountResponse) {
+      return Response.json(bankAccountResponse, { status: 404 });
+    }
+
+    const bankAccount = bankAccountResponse.data;
     if (!bankAccount) {
       throw new ApiError("Bank account not found", 404, ApiErrorCode.NOT_FOUND, [
         {
@@ -126,15 +142,10 @@ export async function DELETE(request: Request, context: { params: { id: string }
       ]);
     }
 
-    const result = await deleteBankAccount(context.params.id);
+    const result = await bankAccountService.deleteBankAccount(context.params.id);
 
-    if (!result) {
-      throw new ApiError("Failed to delete bank account", 400, ApiErrorCode.OPERATION_FAILED, [
-        {
-          code: ApiErrorCode.OPERATION_FAILED,
-          message: "Failed to delete bank account",
-        },
-      ]);
+    if ("error" in result) {
+      return Response.json(result);
     }
 
     return Response.json(
