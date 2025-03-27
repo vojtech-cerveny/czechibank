@@ -9,8 +9,13 @@ export function middleware(request: NextRequest) {
   // Get the response
   const response = NextResponse.next();
 
-  // Add CORS headers
-  response.headers.set("Access-Control-Allow-Origin", "*");
+  // Allow all origins for open API
+  const origin = request.headers.get("origin");
+  if (origin) {
+    response.headers.set("Access-Control-Allow-Origin", origin);
+  }
+
+  // Set CORS headers for all requests
   response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
   response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
   response.headers.set("Access-Control-Allow-Credentials", "true");
@@ -18,9 +23,9 @@ export function middleware(request: NextRequest) {
 
   // Handle preflight requests
   if (request.method === "OPTIONS") {
-    console.log("Handling OPTIONS request");
+    console.log("Handling OPTIONS request for origin:", origin);
     return new NextResponse(null, {
-      status: 200, // Changed from 204 to 200
+      status: 200,
       headers: response.headers,
     });
   }
