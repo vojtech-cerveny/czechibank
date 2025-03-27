@@ -181,6 +181,7 @@ export async function getAllTransactionsByUserIdForAPI(
             user: {
               select: {
                 name: true,
+                id: true,
               },
             },
           },
@@ -192,6 +193,7 @@ export async function getAllTransactionsByUserIdForAPI(
             user: {
               select: {
                 name: true,
+                id: true,
               },
             },
           },
