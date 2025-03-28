@@ -1,4 +1,5 @@
 import { errorResponse } from "@/lib/response";
+import { NextResponse } from "next/server";
 import { ApiError } from "./api-error";
 
 export { ApiError };
@@ -15,8 +16,8 @@ export async function HEAD(request: Request) {
   return new Response("Method Not Allowed", { status: 405 });
 }
 
-export async function OPTIONS(request: Request) {
-  return new Response("Method Not Allowed", { status: 405 });
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204 });
 }
 
 export async function PATCH(request: Request) {
