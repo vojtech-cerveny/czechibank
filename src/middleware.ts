@@ -13,10 +13,16 @@ export function middleware(request: NextRequest) {
   // Get the response
   const response = NextResponse.next();
 
+  // Get the origin from the request
+  const origin = request.headers.get("origin");
+
   // Set CORS headers for all requests
-  response.headers.set("Access-Control-Allow-Origin", "*");
+  if (origin) {
+    response.headers.set("Access-Control-Allow-Origin", origin);
+  }
   response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
   response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
+  response.headers.set("Access-Control-Allow-Credentials", "true");
   response.headers.set("Access-Control-Max-Age", "86400"); // 24 hours
 
   // Log response headers for debugging
