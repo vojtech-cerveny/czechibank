@@ -19,7 +19,7 @@ import { ApiError, handleErrors } from "../../routes";
  *           type: string
  *         description: Bank account ID
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     responses:
  *       200:
  *         description: Bank account details retrieved successfully
@@ -53,7 +53,7 @@ import { ApiError, handleErrors } from "../../routes";
  *           type: string
  *         description: Bank account ID
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     responses:
  *       200:
  *         description: Bank account deleted successfully

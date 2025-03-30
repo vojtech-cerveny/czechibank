@@ -1,7 +1,8 @@
-import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
 import transactionService from "@/domain/transaction-domain/transaction-service";
-import { ApiErrorCode } from "@/lib/response";
-import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from "../../routes";
+import { ApiErrorCode, errorResponse } from "@/lib/response";
+import { NextRequest, NextResponse } from "next/server";
+import { DELETE, HEAD, OPTIONS, PATCH, POST, PUT } from "../../routes";
+import { checkUserAuthOrThrowError } from "../../server-actions";
 
 /**
  * @swagger
@@ -18,7 +19,7 @@ import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from 
  *           type: string
  *         description: Transaction ID
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     responses:
  *       200:
  *         description: Transaction details successfully retrieved
@@ -35,7 +36,7 @@ import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from 
  *                         transaction:
  *                           $ref: '#/components/schemas/Transaction'
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized - API key is missing or invalid
  *         content:
  *           application/json:
  *             schema:
@@ -47,24 +48,32 @@ import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from 
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-export async function GET(request: Request, context: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const user = await checkUserAuthOrThrowError(request);
     if ("error" in user) {
-      return Response.json(user, { status: 401 });
+      return NextResponse.json(errorResponse(user.error.message, user.error.code), { status: 401 });
     }
 
-    const transaction = await transactionService.getTransactionDetailByTransactionId(context.params.id, user.id);
+    const result = await transactionService.getTransactionDetailByTransactionId(params.id, user.id);
 
-    return Response.json(transaction);
+    if ("error" in result) {
+      const error = result.error as { code: ApiErrorCode; message: string };
+      if (error.code === "NOT_FOUND") {
+        return NextResponse.json(errorResponse("Transaction not found", "404"), { status: 404 });
+      }
+      return NextResponse.json(errorResponse(error.message, "500"), { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        transaction: result.data,
+      },
+    });
   } catch (error) {
-    if (error instanceof ApiError) {
-      return handleErrors(error);
-    } else {
-      throw new ApiError("Internal Server Error", 500, ApiErrorCode.INTERNAL_ERROR, [
-        { code: ApiErrorCode.INTERNAL_ERROR, message: error instanceof Error ? error.message : "Unknown error" },
-      ]);
-    }
+    console.error("Error in GET /api/v1/transactions/[id]:", error);
+    return NextResponse.json(errorResponse("Internal server error", "500"), { status: 500 });
   }
 }
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 describe("Transactions API", () => {
   describe("GET /api/v1/transactions", () => {
-    it("should return 401 when no Bearer token is provided", async () => {
+    it("should return 401 when no API key is provided", async () => {
       const response = await fetch("http://localhost:3000/api/v1/transactions");
       expect(response.status).toBe(401);
       const data = await response.json();
@@ -10,10 +10,10 @@ describe("Transactions API", () => {
       expect(data.error.message).toBe("Unauthorized");
     });
 
-    it("should return 401 when invalid Bearer token is provided", async () => {
+    it("should return 401 when invalid API key is provided", async () => {
       const response = await fetch("http://localhost:3000/api/v1/transactions", {
         headers: {
-          Authorization: "Bearer invalid-token",
+          "X-API-Key": "invalid-token",
         },
       });
       expect(response.status).toBe(401);
@@ -22,10 +22,10 @@ describe("Transactions API", () => {
       expect(data.error.message).toBe("Unauthorized");
     });
 
-    it("should return transactions with valid Bearer token", async () => {
+    it("should return transactions with valid API key", async () => {
       const response = await fetch("http://localhost:3000/api/v1/transactions", {
         headers: {
-          Authorization: "Bearer 33", // Vojta's account with 100 transactions
+          "X-API-Key": "33", // Vojta's account with 100 transactions
         },
       });
       expect(response.status).toBe(200);
@@ -39,7 +39,7 @@ describe("Transactions API", () => {
       it("should return first page with default limit (10)", async () => {
         const response = await fetch("http://localhost:3000/api/v1/transactions", {
           headers: {
-            Authorization: "Bearer 33",
+            "X-API-Key": "33",
           },
         });
         expect(response.status).toBe(200);
@@ -49,15 +49,15 @@ describe("Transactions API", () => {
         expect(data.meta.pagination).toEqual({
           page: 1,
           limit: 10,
-          total: 102,
-          totalPages: 11,
+          total: 907,
+          totalPages: 91,
         });
       });
 
       it("should return second page with 10 items", async () => {
         const response = await fetch("http://localhost:3000/api/v1/transactions?page=2", {
           headers: {
-            Authorization: "Bearer 33",
+            "X-API-Key": "33",
           },
         });
         expect(response.status).toBe(200);
@@ -67,33 +67,33 @@ describe("Transactions API", () => {
         expect(data.meta.pagination).toEqual({
           page: 2,
           limit: 10,
-          total: 100,
-          totalPages: 10,
+          total: 907,
+          totalPages: 91,
         });
       });
 
       it("should return last page with remaining items", async () => {
-        const response = await fetch("http://localhost:3000/api/v1/transactions?page=10", {
+        const response = await fetch("http://localhost:3000/api/v1/transactions?page=91", {
           headers: {
-            Authorization: "Bearer 33",
+            "X-API-Key": "33",
           },
         });
         expect(response.status).toBe(200);
         const data = await response.json();
         expect(data.success).toBe(true);
-        expect(data.data.transactions).toHaveLength(10);
+        expect(data.data.transactions).toHaveLength(7);
         expect(data.meta.pagination).toEqual({
-          page: 10,
+          page: 91,
           limit: 10,
-          total: 100,
-          totalPages: 10,
+          total: 907,
+          totalPages: 91,
         });
       });
 
       it("should return 400 for invalid pagination parameters", async () => {
         const response = await fetch("http://localhost:3000/api/v1/transactions?page=0&limit=0", {
           headers: {
-            Authorization: "Bearer 33",
+            "X-API-Key": "33",
           },
         });
         expect(response.status).toBe(400);
@@ -103,9 +103,9 @@ describe("Transactions API", () => {
       });
 
       it("should return empty array for page beyond total pages", async () => {
-        const response = await fetch("http://localhost:3000/api/v1/transactions?page=11", {
+        const response = await fetch("http://localhost:3000/api/v1/transactions?page=92", {
           headers: {
-            Authorization: "Bearer 33",
+            "X-API-Key": "33",
           },
         });
         expect(response.status).toBe(200);
@@ -113,10 +113,10 @@ describe("Transactions API", () => {
         expect(data.success).toBe(true);
         expect(data.data.transactions).toHaveLength(0);
         expect(data.meta.pagination).toEqual({
-          page: 11,
+          page: 92,
           limit: 10,
-          total: 100,
-          totalPages: 10,
+          total: 907,
+          totalPages: 91,
         });
       });
     });
@@ -125,20 +125,22 @@ describe("Transactions API", () => {
       it("should sort by createdAt in descending order by default", async () => {
         const response = await fetch("http://localhost:3000/api/v1/transactions", {
           headers: {
-            Authorization: "Bearer 33",
+            "X-API-Key": "33",
           },
         });
         expect(response.status).toBe(200);
         const data = await response.json();
         expect(data.success).toBe(true);
         const transactions = data.data.transactions;
-        expect(transactions[0].createdAt).toBeGreaterThan(transactions[transactions.length - 1].createdAt);
+        const firstDate = new Date(transactions[0].createdAt);
+        const lastDate = new Date(transactions[transactions.length - 1].createdAt);
+        expect(firstDate.getTime()).toBeGreaterThan(lastDate.getTime());
       });
 
       it("should sort by amount in ascending order", async () => {
         const response = await fetch("http://localhost:3000/api/v1/transactions?sortBy=amount&sortOrder=asc", {
           headers: {
-            Authorization: "Bearer 33",
+            "X-API-Key": "33",
           },
         });
         expect(response.status).toBe(200);
@@ -151,7 +153,7 @@ describe("Transactions API", () => {
   });
 
   describe("GET /api/v1/transactions/[id]", () => {
-    it("should return 401 when no Bearer token is provided", async () => {
+    it("should return 401 when no API key is provided", async () => {
       const response = await fetch("http://localhost:3000/api/v1/transactions/123");
       expect(response.status).toBe(401);
       const data = await response.json();
@@ -159,16 +161,14 @@ describe("Transactions API", () => {
       expect(data.error.message).toBe("Unauthorized");
     });
 
-    // MAKE REPOSITORY AND SERVICE!!!! 👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈👈
     it("should return 404 for non-existent transaction", async () => {
       const response = await fetch("http://localhost:3000/api/v1/transactions/non-existent-id", {
         headers: {
-          Authorization: "Bearer 33",
+          "X-API-Key": "33",
         },
       });
       expect(response.status).toBe(404);
       const data = await response.json();
-      console.log(data);
       expect(data.success).toBe(false);
       expect(data.error.message).toBe("Transaction not found");
     });
@@ -177,7 +177,7 @@ describe("Transactions API", () => {
       // First get a list of transactions to get a valid ID
       const listResponse = await fetch("http://localhost:3000/api/v1/transactions", {
         headers: {
-          Authorization: "Bearer 33",
+          "X-API-Key": "33",
         },
       });
       const listData = await listResponse.json();
@@ -186,7 +186,7 @@ describe("Transactions API", () => {
       // Then get the details for that transaction
       const response = await fetch(`http://localhost:3000/api/v1/transactions/${transactionId}`, {
         headers: {
-          Authorization: "Bearer 33",
+          "X-API-Key": "33",
         },
       });
       expect(response.status).toBe(200);
@@ -197,7 +197,7 @@ describe("Transactions API", () => {
   });
 
   describe("POST /api/v1/transactions/create", () => {
-    it("should return 401 when no Bearer token is provided", async () => {
+    it("should return 401 when no API key is provided", async () => {
       const response = await fetch("http://localhost:3000/api/v1/transactions/create", {
         method: "POST",
         headers: {
@@ -219,7 +219,7 @@ describe("Transactions API", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer 55",
+          "X-API-Key": "55",
         },
         body: JSON.stringify({}),
       });
@@ -234,7 +234,7 @@ describe("Transactions API", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer 55",
+          "X-API-Key": "55",
         },
         body: JSON.stringify({
           amount: -1,
@@ -252,7 +252,7 @@ describe("Transactions API", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer 55",
+          "X-API-Key": "55",
         },
         body: JSON.stringify({
           amount: 100,
@@ -270,7 +270,7 @@ describe("Transactions API", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer 55",
+          "X-API-Key": "55",
         },
         body: JSON.stringify({
           amount: 100,
@@ -278,11 +278,11 @@ describe("Transactions API", () => {
         }),
       });
       expect(response.status).toBe(201);
-      const data = await response.json();
-      console.log(data);
-      expect(data.success).toBe(true);
-      expect(data.data.message.amount).toBe(100);
-      expect(data.data.message.currency).toBe("CZECHITOKEN");
+      const jsonResponse = await response.json();
+      console.log(jsonResponse.data.message);
+      expect(jsonResponse.success).toBe(true);
+      expect(jsonResponse.data.message.amount).toBe(100);
+      expect(jsonResponse.data.message.currency).toBe("CZECHITOKEN");
     });
   });
 });

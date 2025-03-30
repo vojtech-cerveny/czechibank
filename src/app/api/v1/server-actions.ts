@@ -7,19 +7,17 @@ import { v4 as uuidv4 } from "uuid";
 
 export async function checkUserAuthOrThrowError(request: Request): Promise<User | ErrorResponse> {
   const headersList = request.headers;
-  const bearerToken = headersList.get("Authorization");
-  console.log(bearerToken);
+  const apiKey = headersList.get("X-API-Key");
+  console.log(apiKey);
 
-  if (!bearerToken) {
-    return errorResponse("Bearer token is required", ApiErrorCode.UNAUTHORIZED);
+  if (!apiKey) {
+    return errorResponse("Unauthorized", ApiErrorCode.UNAUTHORIZED);
   }
 
-  const token = bearerToken.split(" ")[1];
-
-  const user = await userService.getUserByBearerToken(token);
+  const user = await userService.getUserByBearerToken(apiKey);
 
   if ("error" in user) {
-    return errorResponse("Invalid bearer token", ApiErrorCode.UNAUTHORIZED);
+    return errorResponse("Unauthorized", ApiErrorCode.UNAUTHORIZED);
   }
 
   return user.data;

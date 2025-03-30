@@ -46,7 +46,7 @@ let bankAccountId = "";
 export default function () {
   const headers = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${authToken}`,
+    "X-API-Key": authToken,
   };
 
   // Test 1: Get transactions without parameters (default pagination)

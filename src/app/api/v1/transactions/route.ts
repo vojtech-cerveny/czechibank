@@ -1,7 +1,7 @@
-import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
 import transactionService from "@/domain/transaction-domain/transaction-service";
-import { ApiErrorCode } from "@/lib/response";
-import { ApiError, handleErrors } from "../routes";
+import { ApiErrorCode, errorResponse } from "@/lib/response";
+import { NextRequest, NextResponse } from "next/server";
+import { checkUserAuthOrThrowError } from "../server-actions";
 export { DELETE, HEAD, OPTIONS, PATCH, PUT } from "../routes";
 
 /**
@@ -42,7 +42,7 @@ export { DELETE, HEAD, OPTIONS, PATCH, PUT } from "../routes";
  *           default: desc
  *         description: Sort order
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     responses:
  *       200:
  *         description: Successfully retrieved transactions
@@ -67,40 +67,61 @@ export { DELETE, HEAD, OPTIONS, PATCH, PUT } from "../routes";
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized - API key is missing or invalid
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const sortBy = searchParams.get("sortBy") || "createdAt";
-    const order = searchParams.get("sortOrder") || (sortBy === "createdAt" ? "desc" : "asc");
-
     const user = await checkUserAuthOrThrowError(request);
     if ("error" in user) {
-      return Response.json(user, { status: 401 });
+      return NextResponse.json(errorResponse(user.error.message, user.error.code), { status: 401 });
     }
-    const result = await transactionService.getAllTransactionsByIdFromAPI(
-      user.id,
-      sortBy,
-      order as "asc" | "desc",
-      page,
-      limit,
-    );
 
-    return Response.json(result);
-  } catch (error) {
-    if (error instanceof ApiError) {
-      return handleErrors(error);
-    } else {
-      throw new ApiError("Internal Server Error", 500, ApiErrorCode.INTERNAL_ERROR, [
-        { code: ApiErrorCode.INTERNAL_ERROR, message: error instanceof Error ? error.message : "Unknown error" },
-      ]);
+    const searchParams = request.nextUrl.searchParams;
+    const page = searchParams.get("page") || "1";
+    const limit = searchParams.get("limit") || "10";
+    const sortBy = searchParams.get("sortBy") || "createdAt";
+    const sortOrder = (searchParams.get("sortOrder") || "desc") as "asc" | "desc";
+
+    // Validate pagination parameters
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+
+    if (isNaN(pageNum) || isNaN(limitNum) || pageNum < 1 || limitNum < 1) {
+      return NextResponse.json(
+        errorResponse("Invalid pagination parameters", "400", [
+          {
+            code: ApiErrorCode.VALIDATION_ERROR,
+            message: "Page and limit must be positive numbers",
+          },
+        ]),
+        { status: 400 },
+      );
     }
+
+    const result = await transactionService.getAllTransactionsByIdFromAPI(user.id, sortBy, sortOrder, page, limit);
+
+    if ("error" in result) {
+      if (result.error.code === "VALIDATION_ERROR") {
+        return NextResponse.json(errorResponse(result.error.message, "400"), { status: 400 });
+      }
+      return NextResponse.json(errorResponse(result.error.message, "500"), { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        transactions: result.data.transactions,
+      },
+      meta: {
+        pagination: result.data.pagination,
+      },
+    });
+  } catch (error) {
+    console.error("Error in GET /api/v1/transactions:", error);
+    return NextResponse.json(errorResponse("Internal server error", "500"), { status: 500 });
   }
 }

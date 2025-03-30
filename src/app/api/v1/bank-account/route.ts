@@ -1,6 +1,6 @@
 import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
 import bankAccountService from "@/domain/bankAccount-domain/ba-service";
-import { ApiErrorCode, createPaginationMeta, successResponse } from "@/lib/response";
+import { ApiErrorCode, createPaginationMeta, errorResponse, successResponse } from "@/lib/response";
 import { ApiError, DELETE, HEAD, PATCH, POST, PUT, handleErrors } from "../routes";
 
 /**
@@ -27,7 +27,7 @@ import { ApiError, DELETE, HEAD, PATCH, POST, PUT, handleErrors } from "../route
  *           default: 10
  *         description: Number of items per page
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     responses:
  *       200:
  *         description: Successfully retrieved bank accounts
@@ -91,6 +91,19 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
+
+    // Validate pagination parameters
+    if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
+      return Response.json(
+        errorResponse("Invalid pagination parameters", ApiErrorCode.VALIDATION_ERROR, [
+          {
+            code: ApiErrorCode.VALIDATION_ERROR,
+            message: "Page and limit must be positive numbers",
+          },
+        ]),
+        { status: 400 },
+      );
+    }
 
     const result = await bankAccountService.getMyBankAccounts(user.id, { page, limit });
 

@@ -17,7 +17,7 @@ test.skip("should create a bank account", async () => {
 
 describe("Bank Account API", () => {
   describe("GET /api/v1/bank-account", () => {
-    it("should return 401 when no Bearer token is provided", async () => {
+    it("should return 401 when no API key is provided", async () => {
       const response = await fetch("http://localhost:3000/api/v1/bank-account");
       expect(response.status).toBe(401);
       const data = await response.json();
@@ -26,10 +26,10 @@ describe("Bank Account API", () => {
       expect(data.error.message).toBe("Unauthorized");
     });
 
-    it("should return 401 when invalid Bearer token is provided", async () => {
+    it("should return 401 when invalid API key is provided", async () => {
       const response = await fetch("http://localhost:3000/api/v1/bank-account", {
         headers: {
-          Authorization: "Bearer invalid-token",
+          "X-API-Key": "invalid-token",
         },
       });
       expect(response.status).toBe(401);
@@ -39,10 +39,10 @@ describe("Bank Account API", () => {
       expect(data.error.message).toBe("Unauthorized");
     });
 
-    it("should return bank accounts with valid Bearer token", async () => {
+    it("should return bank accounts with valid API key", async () => {
       const response = await fetch("http://localhost:3000/api/v1/bank-account", {
         headers: {
-          Authorization: "Bearer 55",
+          "X-API-Key": "55",
         },
       });
       expect(response.status).toBe(200);
@@ -55,7 +55,7 @@ describe("Bank Account API", () => {
     it("should handle pagination parameters", async () => {
       const response = await fetch("http://localhost:3000/api/v1/bank-account?page=1&limit=5", {
         headers: {
-          Authorization: "Bearer 44",
+          "X-API-Key": "44",
         },
       });
       expect(response.status).toBe(200);
@@ -68,7 +68,7 @@ describe("Bank Account API", () => {
     it("should return 400 for invalid pagination parameters", async () => {
       const response = await fetch("http://localhost:3000/api/v1/bank-account?page=0&limit=0", {
         headers: {
-          Authorization: "Bearer 44",
+          "X-API-Key": "44",
         },
       });
       expect(response.status).toBe(400);

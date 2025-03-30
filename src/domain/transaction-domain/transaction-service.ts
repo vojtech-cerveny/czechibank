@@ -1,4 +1,3 @@
-import { ApiError } from "@/app/api/v1/routes";
 import { ApiErrorCode, errorResponse, successResponse } from "@/lib/response";
 import { Currency } from "@prisma/client";
 import bankAccountService from "../bankAccount-domain/ba-service";
@@ -92,7 +91,7 @@ const transactionService = {
       // if (applicationType === "web") {
       //   revalidatePath("/bankAccount");
       // }
-      return successResponse("Transaction successful", result);
+      return successResponse("Transaction successful", result.data);
     } catch (error: any) {
       return errorResponse(error?.message || "Failed to send money to bank number", ApiErrorCode.INTERNAL_ERROR);
     }
@@ -106,11 +105,14 @@ const transactionService = {
     userId: string,
     orderBy: string,
     order: "asc" | "desc",
-    page: number = 1,
-    limit: number = 10,
+    page: string,
+    limit: string,
   ) {
-    if (page < 1 || limit < 1) {
-      throw new ApiError("Invalid pagination parameters", 400, ApiErrorCode.VALIDATION_ERROR, [
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+
+    if (pageNum < 1 || limitNum < 1) {
+      return errorResponse("Invalid pagination parameters", ApiErrorCode.VALIDATION_ERROR, [
         {
           code: ApiErrorCode.VALIDATION_ERROR,
           message: "Page and limit must be positive numbers",
@@ -118,9 +120,9 @@ const transactionService = {
       ]);
     }
 
-    const result = await repository.getAllTransactionsByUserIdForAPI(userId, orderBy, order, page, limit);
+    const result = await repository.getAllTransactionsByUserIdForAPI(userId, orderBy, order, pageNum, limitNum);
 
-    if ("error" in result) {
+    if (!result) {
       return errorResponse("Failed to retrieve transactions", ApiErrorCode.INTERNAL_ERROR, [
         {
           code: ApiErrorCode.INTERNAL_ERROR,
@@ -129,14 +131,28 @@ const transactionService = {
       ]);
     }
 
-    return successResponse("Transactions retrieved successfully", result);
+    // If the requested page is beyond total pages, return empty array
+    if (pageNum > result.pagination.totalPages) {
+      return successResponse("Transactions retrieved successfully", {
+        transactions: [],
+        pagination: {
+          ...result.pagination,
+          page: pageNum,
+        },
+      });
+    }
+
+    return successResponse("Transactions retrieved successfully", {
+      transactions: result.transactions,
+      pagination: result.pagination,
+    });
   },
 
   async getTransactionDetailByTransactionId(transactionId: string, userId: string) {
     const transaction = await repository.getTransactionDetailByTransactionId(transactionId, userId);
 
     if (!transaction) {
-      throw new ApiError("Transaction not found", 404, ApiErrorCode.NOT_FOUND, [
+      return errorResponse("Transaction not found", ApiErrorCode.NOT_FOUND, [
         {
           code: ApiErrorCode.NOT_FOUND,
           message: "Transaction not found",

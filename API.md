@@ -17,10 +17,10 @@ The Czechibank API is a RESTful API that allows you to:
 
 ### Authentication
 
-All API endpoints (except user creation) require authentication using a Bearer token:
+All API endpoints (except user creation) require authentication using an API key:
 
 ```bash
-curl -H "Authorization: Bearer your_api_key" https://api.czechibank.com/v1/user
+curl -H "X-API-Key: your_api_key" https://localhost:3000/v1/user
 ```
 
 ## Common Patterns
@@ -91,7 +91,7 @@ curl -X POST http://localhost:3000/api/v1/user/create \
 
 ```bash
 curl http://localhost:3000/api/v1/user \
-  -H "Authorization: Bearer your_api_key"
+  -H "X-API-Key: your_api_key"
 ```
 
 ### 2. Bank Account Management
@@ -100,7 +100,7 @@ curl http://localhost:3000/api/v1/user \
 
 ```bash
 curl -X POST http://localhost:3000/api/v1/bank-account/create \
-  -H "Authorization: Bearer your_api_key" \
+  -H "X-API-Key: your_api_key" \
   -H "Content-Type: application/json" \
   -d '{
     "currency": "CZECHITOKEN"
@@ -111,7 +111,7 @@ curl -X POST http://localhost:3000/api/v1/bank-account/create \
 
 ```bash
 curl http://localhost:3000/api/v1/bank-account/get-all \
-  -H "Authorization: Bearer your_api_key"
+  -H "X-API-Key: your_api_key"
 ```
 
 ### 3. Transaction Operations
@@ -120,7 +120,7 @@ curl http://localhost:3000/api/v1/bank-account/get-all \
 
 ```bash
 curl -X POST http://localhost:3000/api/v1/transactions/create \
-  -H "Authorization: Bearer your_api_key" \
+  -H "X-API-Key: your_api_key" \
   -H "Content-Type: application/json" \
   -d '{
     "amount": 100.50,
@@ -132,14 +132,14 @@ curl -X POST http://localhost:3000/api/v1/transactions/create \
 
 ```bash
 curl "http://localhost:3000/api/v1/transactions?page=1&limit=10&sortBy=createdAt&sortOrder=desc" \
-  -H "Authorization: Bearer your_api_key"
+  -H "X-API-Key: your_api_key"
 ```
 
 3. Get transaction details:
 
 ```bash
 curl http://localhost:3000/api/v1/transactions/txn_123 \
-  -H "Authorization: Bearer your_api_key"
+  -H "X-API-Key: your_api_key"
 ```
 
 ## Best Practices

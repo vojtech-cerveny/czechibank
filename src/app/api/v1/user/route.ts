@@ -10,7 +10,7 @@ import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from 
  *     description: Retrieves the authenticated user's profile information
  *     tags: [Users]
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     responses:
  *       200:
  *         description: User profile successfully retrieved
@@ -27,7 +27,7 @@ import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from 
  *                         user:
  *                           $ref: '#/components/schemas/User'
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized - API key is missing or invalid
  *         content:
  *           application/json:
  *             schema:

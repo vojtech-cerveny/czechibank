@@ -38,11 +38,11 @@ All responses follow a consistent format:
     ],
     components: {
       securitySchemes: {
-        BearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "API Key",
-          description: "Enter your API key in the format: Bearer <api_key>",
+        ApiKeyAuth: {
+          type: "apiKey",
+          in: "header",
+          name: "X-API-Key",
+          description: "Enter your API key",
         },
       },
       schemas: {
@@ -206,7 +206,7 @@ All responses follow a consistent format:
         },
       },
     },
-    security: [{ BearerAuth: [] }],
+    security: [{ ApiKeyAuth: [] }],
     tags: [
       {
         name: "About",

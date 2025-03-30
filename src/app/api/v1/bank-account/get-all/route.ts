@@ -10,7 +10,7 @@ import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from 
  *     description: Retrieve a paginated list of bank accounts
  *     tags: [Bank Accounts]
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -51,7 +51,7 @@ import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from 
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       401:
- *         description: Unauthorized - Bearer token is missing or invalid
+ *         description: Unauthorized - API key is missing or invalid
  *         content:
  *           application/json:
  *             schema:

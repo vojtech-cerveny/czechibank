@@ -11,13 +11,13 @@ export function ApiKeyForm({ apiKey }: { apiKey: string }) {
 
   const handleCopyClick = () => {
     navigator.clipboard.writeText(apiKey);
-    toast({ description: "Bearer token byl zkopírován do schránky." });
+    toast({ description: "API key byl zkopírován do schránky." });
   };
 
   return (
     <>
       <div>
-        <Label>Bearer token</Label>
+        <Label>API Key</Label>
         <Input className="select-all" name={"apiKey"} value={apiKey} readOnly />
       </div>
       <Button onClick={handleCopyClick}>

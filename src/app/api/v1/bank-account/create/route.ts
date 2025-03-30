@@ -17,7 +17,7 @@ import { ApiError, handleErrors } from "../../routes";
  *           schema:
  *             $ref: '#/components/schemas/BankAccountCreate'
  *     security:
- *       - BearerAuth: []
+ *       - ApiKeyAuth: []
  *     responses:
  *       201:
  *         description: Bank account successfully created
