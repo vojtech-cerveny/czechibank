@@ -4,19 +4,6 @@ export function add(a: number, b: number) {
   return a + b;
 }
 
-export function showCorrectPostfix(number: number) {
-  if (number > 0 && number < 5) {
-    return `${number} transakce`;
-  }
-  if (number >= 5) {
-    return `${number} transakcí`;
-  }
-  if (number == 0) {
-    return `žádná transakce`;
-  }
-  return `${number} transakcí`;
-}
-
 describe("Math", () => {
   it("should add two numbers", () => {
     expect(add(1, 1)).toBe(2);
@@ -38,6 +25,19 @@ describe("Math", () => {
     expect(add(1, 0)).toBe(1);
   });
 });
+
+export function showCorrectPostfix(number: number) {
+  if (number > 0 && number < 5) {
+    return `${number} transakce`;
+  }
+  if (number >= 5) {
+    return `${number} transakcí`;
+  }
+  if (number == 0) {
+    return `žádná transakce`;
+  }
+  return `${number} transakcí`;
+}
 
 describe("showCorrectPostfix", () => {
   it("should return correct postfix", () => {

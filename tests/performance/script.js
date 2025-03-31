@@ -1,4 +1,4 @@
-import { check } from "k6";
+import { check, sleep } from "k6";
 import http from "k6/http";
 export const options = {
   stages: [
@@ -14,25 +14,25 @@ export function setup() {
 }
 
 export default function () {
-  const res1 = http.post(
-    "https://czechibank.ostrava.digital/v1/api/transactions/create",
-    JSON.stringify({
-      to: "594810059418/5555",
-      amount: 1,
-    }),
-    {
-      headers: {
-        "X-API-Key": __ENV.APIKEY,
-      },
-    },
-  );
-  check(res1, { "status was 200": (r) => r.status == 201 });
+  // const res1 = http.post(
+  //   "https://czechibank.ostrava.digital/v1/api/transactions/create",
+  //   JSON.stringify({
+  //     to: "594810059418/5555",
+  //     amount: 1,
+  //   }),
+  //   {
+  //     headers: {
+  //       "X-API-Key": __ENV.APIKEY,
+  //     },
+  //   },
+  // );
+  // check(res1, { "status was 200": (r) => r.status == 201 });
 
-  const res2 = http.get("https://czechibank.ostrava.digital/v1/api/transactions", {
+  const res2 = http.get("https://czechibank.ostrava.digital/v1/api/transactions/transactions?limit=10", {
     headers: {
       "X-API-Key": __ENV.APIKEY,
     },
   });
   check(res2, { "status was 200": (r) => r.status == 200 });
-  // sleep(1);
+  sleep(1);
 }
