@@ -90,6 +90,9 @@ const darkModeStyles = `
 `;
 
 export default function ApiDocs() {
+  // Get the current URL and replace the path with the API docs endpoint
+  const apiDocsUrl = typeof window !== "undefined" ? `${window.location.origin}/api/v1/docs` : "/api/v1/docs";
+
   return (
     <div className="min-h-screen bg-zinc-900">
       <div className="border-b border-zinc-700 bg-zinc-800">
@@ -101,7 +104,7 @@ export default function ApiDocs() {
       <style>{darkModeStyles}</style>
       <div className="p-4">
         <SwaggerUI
-          url="/api/v1/docs"
+          url={apiDocsUrl}
           docExpansion="list"
           defaultModelExpandDepth={3}
           persistAuthorization={true}
