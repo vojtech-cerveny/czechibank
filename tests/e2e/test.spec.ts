@@ -18,14 +18,15 @@ test.describe("Czechibank login page", () => {
   });
 
   test("can login with correct credentials", async ({ page }) => {
-    const EMAIL = "zachranNasa@pejsekAKocicka.cz";
+    const EMAIL = "zachranNas+brno@pejsekAKocicka.cz";
     const PASSWORD = "PejsekAKocicka123";
-    const NAME = "Pejsek a Kocicka";
+    const NAME = "[BRNO] Pejsek a Kočička 🐶&🐱";
 
     await page.fill('input[name="email"]', EMAIL);
     await page.fill('input[name="password"]', PASSWORD);
 
     await page.click('button[type="submit"]');
+    await page.waitForLoadState("networkidle");
 
     await expect(page).toHaveURL("https://czechibank.ostrava.digital/");
     await expect(page.getByRole("heading", { name: `Hello ${NAME}!` })).toBeVisible();

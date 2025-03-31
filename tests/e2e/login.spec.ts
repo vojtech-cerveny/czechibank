@@ -22,15 +22,15 @@ test.describe("Czechibank login page", () => {
 
   // happy path
   test("logs user with valid credentials and shows main page", async ({ page }) => {
-    await page.getByLabel("Email").fill("czechitas+automation@czechitas.cz");
-    await page.getByLabel("Password").fill("Password123456");
+    await page.getByLabel("Email").fill("zachranNas+brno@pejsekAKocicka.cz");
+    await page.getByLabel("Password").fill("PejsekAKocicka123");
     // I need to add locator('form') because there are another buttons with same name "Sign in" so you need to be more specific. And parent locator is form. 🎉
     await page.locator("form").getByRole("button", { name: "Sign in" }).click();
 
     // I have 2 assertions here. One for URL and one for heading. And it is OK to use both. Both controls same things but from different perspectives.
     // URL is always good - we know that we are on the right page. And heading is good for knowing, that next page is rendered and it works.
     await expect(page).toHaveURL(URL);
-    await expect(page.getByRole("heading", { name: "Hello Automation test!" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "[BRNO] Pejsek a Kočička 🐶&🐱" })).toBeVisible();
   });
 
   test("throws error in UI if we use invalid credentials", async ({ page }) => {
