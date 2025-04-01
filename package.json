@@ -16,7 +16,7 @@
     "deploy:local": "next build && pm2 startOrRestart ecosystem.config.js --env local",
     "deploy:dev": "next build && pm2 startOrRestart ecosystem.config.js --env dev",
     "deploy:prod": "next build && pm2 startOrRestart ecosystem.config.js --env prod",
-    "test:performance": "k6 run k6-tests/script.js",
+    "test:performance": "k6 run -e APIKEY=33 tests/performance/script.js ",
     "test:unit": "vitest tests/unit/",
     "test:api": "vitest tests/api/",
     "test:e2e": "playwright test"

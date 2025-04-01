@@ -24,7 +24,7 @@ export async function sendDiscordMessage({
   const discord_message = {
     username: "DONATION BOT 2.0",
     avatar_url: "https://i.imgur.com/IVb6eBu.png",
-    content: "Another donation has been made!",
+    content: "🎉 Another donation has been made!",
     embeds: [
       {
         author: {
@@ -39,11 +39,20 @@ export async function sendDiscordMessage({
             value: `${applicationType.toUpperCase()}`,
             inline: true,
           },
+          {
+            name: "View Donations",
+            value: "[Check the donation leaderboard](https://donation.ostrava.digital/)",
+            inline: true,
+          },
         ],
         footer: {
-          text: applicationType === "web" ? "Thank you for your support!" : "YOU MADE IT!Thank you for your donation!",
+          text:
+            applicationType === "web"
+              ? "Thank you for your support! 🎉"
+              : "YOU MADE IT! Thank you for your donation! 🎉",
           icon_url: "https://i.imgur.com/fKL31aD.jpg",
         },
+        timestamp: new Date().toISOString(),
       },
     ],
   };
