@@ -40,6 +40,9 @@ export async function middleware(request: NextRequest) {
     // Individual API routes should handle detailed tracking with status and duration
     try {
       const userAgent = request.headers.get("user-agent");
+      if (userAgent?.includes("Uptime-Kuma")) {
+        return response;
+      }
       // Fire and forget - don't await to avoid delaying the response
       await trackApiCall(cleanPath, method, 200, undefined, userAgent || undefined);
     } catch (error) {
