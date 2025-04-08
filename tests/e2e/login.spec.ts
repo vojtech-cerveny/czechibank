@@ -33,7 +33,7 @@ test.describe("Czechibank login page", () => {
     await expect(page.getByRole("heading", { name: "[BRNO] Pejsek a Kočička 🐶&🐱" })).toBeVisible();
   });
 
-  test("throws error in UI if we use invalid credentials", async ({ page }) => {
+  test("throws error in UI if we use invalid credentialss", async ({ page }) => {
     await page.getByLabel("Email").fill("czechitas+automation@czechitas.cz");
     await page.getByLabel("Password").fill("Invalid password");
     await page.locator("form").getByRole("button", { name: "Sign in" }).click();
