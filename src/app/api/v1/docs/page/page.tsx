@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 import "swagger-ui-react/swagger-ui.css";
 
@@ -92,16 +93,22 @@ const darkModeStyles = `
 export default function ApiDocs() {
   // Get the current URL and replace the path with the API docs endpoint
   const apiDocsUrl = typeof window !== "undefined" ? `${window.location.origin}/api/v1/docs` : "/api/v1/docs";
-
+  const { theme } = useTheme();
+  const isDarkMode = () => {
+    if (theme === "dark") {
+      return <style>{darkModeStyles}</style>;
+    }
+    return null;
+  };
   return (
-    <div className="min-h-screen bg-zinc-900">
-      <div className="border-b border-zinc-700 bg-zinc-800">
+    <div className="md:max-w-5xl">
+      <div className="border-b">
         <div className="px-4 py-6">
-          <h1 className="text-3xl font-bold text-zinc-100">Czechibank API Documentation</h1>
-          <p className="mt-2 text-zinc-400">Interactive API documentation for the Czechibank learning application.</p>
+          <h1 className="text-3xl font-bold ">Czechibank API Documentation</h1>
+          <p className="mt-2 ">Interactive API documentation for the Czechibank learning application.</p>
         </div>
       </div>
-      <style>{darkModeStyles}</style>
+      {isDarkMode()}
       <div className="p-4">
         <SwaggerUI
           url={apiDocsUrl}
