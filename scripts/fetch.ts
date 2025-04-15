@@ -22,7 +22,6 @@ const response = fetch("https://czechibank.ostrava.digital/bankAccount/cm0cf9qvl
   method: "POST",
 }).then(async (res) => {
   const text = await res.text();
-  console.log("Raw response:", text);
   try {
     return JSON.parse(text);
   } catch (error) {

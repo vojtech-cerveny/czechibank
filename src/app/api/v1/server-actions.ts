@@ -8,7 +8,6 @@ import { v4 as uuidv4 } from "uuid";
 export async function checkUserAuthOrThrowError(request: Request): Promise<User | ErrorResponse> {
   const headersList = request.headers;
   const apiKey = headersList.get("X-API-Key");
-  console.log(apiKey);
 
   if (!apiKey) {
     return errorResponse("Unauthorized", ApiErrorCode.UNAUTHORIZED);
