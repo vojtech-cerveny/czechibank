@@ -50,7 +50,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const parsedUser = await validateEventHandler(UserSchema, body);
-    console.log("parsedUser", parsedUser);
     if ("error" in parsedUser) {
       return Response.json(parsedUser, { status: 422 });
     }

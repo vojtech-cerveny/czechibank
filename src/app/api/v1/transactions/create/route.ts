@@ -1,7 +1,8 @@
 import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
 import bankAccountService from "@/domain/bankAccount-domain/ba-service";
 import transactionService from "@/domain/transaction-domain/transaction-service";
-import { ApiErrorCode, errorResponse } from "@/lib/response";
+import { ApiTransactionCreateSchema } from "@/domain/transaction-domain/transation-schema";
+import { ApiErrorCode, errorResponse, validateEventHandler } from "@/lib/response";
 import { NextRequest, NextResponse } from "next/server";
 /**
  * @swagger
@@ -60,34 +61,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { amount, toBankNumber } = body;
 
-    if (!amount || !toBankNumber) {
-      return NextResponse.json(
-        errorResponse("Missing required fields", "400", [
-          {
-            code: ApiErrorCode.VALIDATION_ERROR,
-            message: "Amount and recipient bank account number are required",
-          },
-        ]),
-        { status: 400 },
-      );
+    const validatedBody = await validateEventHandler(ApiTransactionCreateSchema, body);
+
+    if ("error" in validatedBody) {
+      return NextResponse.json(validatedBody, { status: 400 });
     }
 
-    if (amount <= 0) {
-      return NextResponse.json(
-        errorResponse("Invalid amount", "400", [
-          {
-            code: ApiErrorCode.VALIDATION_ERROR,
-            field: "amount",
-            message: "Amount must be greater than 0",
-          },
-        ]),
-        { status: 400 },
-      );
-    }
+    const { amount, toBankNumber } = validatedBody;
 
-    // Get user's bank accounts
     const userBankAccounts = await bankAccountService.getMyBankAccounts(user.id, { page: 1, limit: 1 });
     if ("error" in userBankAccounts || userBankAccounts.data.items.length === 0) {
       return NextResponse.json(errorResponse("No bank account found for user", "400"), { status: 400 });
