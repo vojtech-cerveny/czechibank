@@ -1,6 +1,6 @@
 import { checkUserAuthOrThrowError } from "@/app/api/v1/server-actions";
 import bankAccountService from "@/domain/bankAccount-domain/ba-service";
-import { ApiErrorCode, errorResponse, successResponse } from "@/lib/response";
+import { ApiErrorCode, createPaginationMeta, errorResponse, successResponse } from "@/lib/response";
 import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from "../../routes";
 /**
  * @swagger
@@ -33,17 +33,46 @@ import { ApiError, DELETE, HEAD, OPTIONS, PATCH, POST, PUT, handleErrors } from 
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/SuccessResponse'
- *                 - type: object
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Bank accounts retrieved successfully
+ *                 data:
+ *                   type: object
  *                   properties:
- *                     data:
+ *                     bankAccounts:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/BankAccount'
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     timestamp:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Response timestamp
+ *                     requestId:
+ *                       type: string
+ *                       description: Unique request identifier for tracing
+ *                     pagination:
  *                       type: object
  *                       properties:
- *                         bankAccounts:
- *                           type: array
- *                           items:
- *                             $ref: '#/components/schemas/BankAccount'
+ *                         page:
+ *                           type: integer
+ *                           description: Current page number
+ *                         limit:
+ *                           type: integer
+ *                           description: Items per page
+ *                         total:
+ *                           type: integer
+ *                           description: Total number of items
+ *                         totalPages:
+ *                           type: integer
+ *                           description: Total number of pages
  *       400:
  *         description: Invalid pagination parameters
  *         content:
@@ -80,9 +109,20 @@ export async function GET(request: Request) {
       return Response.json(result);
     }
 
-    return Response.json(successResponse("Bank accounts retrieved successfully", { bankAccounts: result.data.items }), {
-      status: 200,
-    });
+    return Response.json(
+      successResponse(
+        "Bank accounts retrieved successfully",
+        { bankAccounts: result.data.items },
+        {
+          timestamp: new Date().toISOString(),
+          requestId: request.headers.get("x-request-id") || undefined,
+          pagination: createPaginationMeta(result.data.page, result.data.limit, result.data.total),
+        },
+      ),
+      {
+        status: 200,
+      },
+    );
   } catch (error) {
     if (error instanceof ApiError) {
       return handleErrors(error);
