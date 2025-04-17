@@ -3,11 +3,11 @@ import { DELETE, HEAD, OPTIONS, PATCH, POST, PUT } from "../routes";
 
 /**
  * @swagger
- * /about:
+ * /health:
  *   get:
  *     summary: Get API information
  *     description: Retrieves information about the API, including version and name
- *     tags: [About]
+ *     tags: [Health]
  *     responses:
  *       200:
  *         description: API information successfully retrieved
