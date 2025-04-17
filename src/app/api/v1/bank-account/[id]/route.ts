@@ -101,8 +101,12 @@ export async function GET(request: Request, context: { params: { id: string } })
     }
     const bankAccountResponse = await bankAccountService.getBankAccountById(parsedId.id, user.id);
 
+    if ("error" in bankAccountResponse && bankAccountResponse.error.code === ApiErrorCode.NOT_FOUND) {
+      return Response.json(bankAccountResponse, { status: 404 });
+    }
+
     if ("error" in bankAccountResponse) {
-      return Response.json(bankAccountResponse);
+      return Response.json(bankAccountResponse, { status: 500 });
     }
 
     return Response.json(

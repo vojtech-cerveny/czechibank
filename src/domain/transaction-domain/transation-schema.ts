@@ -8,7 +8,7 @@ export const CreateTransactionNumberToNumberSchema = z.object({
     .positive("Amount should be positive, this incident was reported. Nice day!")
     .transform((val) => parseFloat(val.toFixed(1))),
   currency: z.custom<Currency>(),
-  toBankNumber: z.string().endsWith("5555").length(17, "Bank number must be exactly 17 characters long."),
+  toBankNumber: z.string().endsWith("5555").length(17, "Bank number must be exactly in format 1111222233334444/5555"),
   userId: z.string(),
   fromBankNumber: z.string(),
 });
@@ -31,13 +31,13 @@ export const ApiTransactionCreateSchema = z.object({
       })
       .positive("Amount must be a positive number."),
   ),
-  toBankNumber: z.string().length(17, "Bank number must be exactly 17 characters long."),
+  toBankNumber: z.string().endsWith("5555").length(17, "Bank number must be exactly in format 1111222233334444/5555"),
 });
 
 export const CreateTransactionUserIdToUserIdUserSchema = z.object({
   amount: z
     .number()
-    .positive("Amount should be positive, this incident was reported. Nice day!")
+    .positive("Amount should be positive, this incident was reported. Nice try. Nice day!")
     .transform((val) => parseFloat(val.toFixed(1))),
   currency: z.custom<Currency>(),
   fromUserId: z.string(),
