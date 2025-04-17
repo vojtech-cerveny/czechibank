@@ -7,7 +7,7 @@ import { DELETE, HEAD, OPTIONS, PATCH, POST, PUT } from "../routes";
  *   get:
  *     summary: Get API information
  *     description: Retrieves information about the API, including version and name
- *     tags: [about]
+ *     tags: [About]
  *     responses:
  *       200:
  *         description: API information successfully retrieved
