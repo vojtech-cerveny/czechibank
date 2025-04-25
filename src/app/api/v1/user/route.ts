@@ -42,7 +42,10 @@ export async function GET(request: Request) {
       return Response.json(user, { status: 401 });
     }
     // If no 'error' property, authentication was successful
-    return Response.json(successResponse("User profile retrieved successfully", { user }), { status: 200 });
+    const { password, ...userWithoutPassword } = user;
+    return Response.json(successResponse("User profile retrieved successfully", { user: userWithoutPassword }), {
+      status: 200,
+    });
   } catch (error) {
     if (error instanceof ApiError) {
       return handleErrors(error);
