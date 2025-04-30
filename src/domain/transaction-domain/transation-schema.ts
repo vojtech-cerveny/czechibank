@@ -17,10 +17,15 @@ export const CreateTransactionNumberToNumberSchema = z.object({
 export const ApiTransactionCreateSchema = z.object({
   amount: z.preprocess(
     (val) => {
-      // Attempt to parse if it's a string, otherwise pass through
+      // Only accept strings that are valid numbers (integer or decimal)
       if (typeof val === "string") {
-        const parsed = parseFloat(val);
-        return isNaN(parsed) ? val : parsed; // Return original string if parsing failed
+        // Regex matches optional leading +/-, digits, optional decimal, optional exponent
+        const validNumberPattern = /^[-+]?\d*(\.\d+)?([eE][-+]?\d+)?$/;
+        if (validNumberPattern.test(val.trim()) && val.trim() !== "") {
+          const parsed = parseFloat(val);
+          return isNaN(parsed) ? undefined : parsed;
+        }
+        return undefined; // Invalid string, will fail number validation
       }
       return val;
     },
