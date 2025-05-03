@@ -68,3 +68,21 @@ describe("showCorrectPostfix", () => {
     expect(showCorrectPostfix(12)).toBe("12 transakcí");
   });
 });
+
+function minus(a: number, b: number) {
+  return a - b;
+}
+
+describe("Minus", () => {
+  it("should return 4 if a is 5 and b is 1", () => {
+    expect(minus(5, 1)).toBe(4);
+  });
+
+  it("should return 0 if a is 5 and b is 5", () => {
+    expect(minus(0, 5)).toBe(-5);
+  });
+
+  it("should return 10 if a is 5 and b is -5", () => {
+    expect(minus(5, -5)).toBe(10);
+  });
+});
