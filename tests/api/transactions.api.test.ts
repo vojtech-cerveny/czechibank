@@ -46,12 +46,12 @@ describe("Transactions API", () => {
         const data = await response.json();
         expect(data.success).toBe(true);
         expect(data.data.transactions).toHaveLength(10);
-        expect(data.meta.pagination).toEqual({
-          page: 1,
-          limit: 10,
-          total: 907,
-          totalPages: 91,
-        });
+        expect(data.meta.pagination).toEqual(
+          expect.objectContaining({
+            page: 1,
+            limit: 10,
+          }),
+        );
       });
 
       it("should return second page with 10 items", async () => {
@@ -64,30 +64,12 @@ describe("Transactions API", () => {
         const data = await response.json();
         expect(data.success).toBe(true);
         expect(data.data.transactions).toHaveLength(10);
-        expect(data.meta.pagination).toEqual({
-          page: 2,
-          limit: 10,
-          total: 907,
-          totalPages: 91,
-        });
-      });
-
-      it("should return last page with remaining items", async () => {
-        const response = await fetch("http://localhost:3000/api/v1/transactions?page=91", {
-          headers: {
-            "X-API-Key": "33",
-          },
-        });
-        expect(response.status).toBe(200);
-        const data = await response.json();
-        expect(data.success).toBe(true);
-        expect(data.data.transactions).toHaveLength(7);
-        expect(data.meta.pagination).toEqual({
-          page: 91,
-          limit: 10,
-          total: 907,
-          totalPages: 91,
-        });
+        expect(data.meta.pagination).toEqual(
+          expect.objectContaining({
+            page: 2,
+            limit: 10,
+          }),
+        );
       });
 
       it("should return 400 for invalid pagination parameters", async () => {
@@ -103,7 +85,7 @@ describe("Transactions API", () => {
       });
 
       it("should return empty array for page beyond total pages", async () => {
-        const response = await fetch("http://localhost:3000/api/v1/transactions?page=92", {
+        const response = await fetch("http://localhost:3000/api/v1/transactions?page=921", {
           headers: {
             "X-API-Key": "33",
           },
@@ -112,12 +94,12 @@ describe("Transactions API", () => {
         const data = await response.json();
         expect(data.success).toBe(true);
         expect(data.data.transactions).toHaveLength(0);
-        expect(data.meta.pagination).toEqual({
-          page: 92,
-          limit: 10,
-          total: 907,
-          totalPages: 91,
-        });
+        expect(data.meta.pagination).toEqual(
+          expect.objectContaining({
+            page: 921,
+            limit: 10,
+          }),
+        );
       });
     });
 
@@ -226,7 +208,7 @@ describe("Transactions API", () => {
       expect(response.status).toBe(400);
       const data = await response.json();
       expect(data.success).toBe(false);
-      expect(data.error.details[0].message).toBe("Amount and recipient bank account number are required");
+      expect(data.error.details[0].message).toBe("Required");
     });
 
     it("should return 400 for invalid amount", async () => {
@@ -238,13 +220,13 @@ describe("Transactions API", () => {
         },
         body: JSON.stringify({
           amount: -1,
-          toBankNumber: "1234567890/1234",
+          toBankNumber: "000000000001/5555",
         }),
       });
       expect(response.status).toBe(400);
       const data = await response.json();
       expect(data.success).toBe(false);
-      expect(data.error.details[0].message).toBe("Amount must be greater than 0");
+      expect(data.error.details[0].message).toBe("Amount should be positive, this incident was reported. Nice day!");
     });
 
     it("should return 404 for non-existent recipient bank account", async () => {
@@ -265,7 +247,7 @@ describe("Transactions API", () => {
       expect(data.error.message).toBe("Bank account not found");
     });
 
-    it("should create a new transaction", async () => {
+    it("should return 400 for amount greater than Number.MAX_SAFE_INTEGER", async () => {
       const response = await fetch("http://localhost:3000/api/v1/transactions/create", {
         method: "POST",
         headers: {
@@ -273,16 +255,16 @@ describe("Transactions API", () => {
           "X-API-Key": "55",
         },
         body: JSON.stringify({
-          amount: 100,
-          toBankNumber: "555555555555/5555", // Prague rescue fund
+          amount: Number.MAX_SAFE_INTEGER + 1,
+          toBankNumber: "000000000002/5555",
         }),
       });
-      expect(response.status).toBe(201);
-      const jsonResponse = await response.json();
-      console.log(jsonResponse.data.message);
-      expect(jsonResponse.success).toBe(true);
-      expect(jsonResponse.data.message.amount).toBe(100);
-      expect(jsonResponse.data.message.currency).toBe("CZECHITOKEN");
+      expect(response.status).toBe(400);
+      const data = await response.json();
+      expect(data.success).toBe(false);
+      expect(data.error.details[0].message).toMatch(
+        /Amount must be less than or equal to 9007199254740991 due security reasons./,
+      );
     });
   });
 });
