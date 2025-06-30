@@ -61,6 +61,9 @@ export async function regenerateAvatarConfig(userId: string, avatarConfig: strin
       avatarConfig: JSON.stringify(avatarConfig),
     },
   });
+  if ("error" in user) {
+    return errorResponse("An error occurred while regenerating the avatar config", ApiErrorCode.OPERATION_FAILED);
+  }
 
   return successResponse("Avatar config regenerated", user);
 }

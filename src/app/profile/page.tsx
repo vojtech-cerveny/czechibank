@@ -30,6 +30,7 @@ export default async function ProfilePage() {
     "use server";
     console.log("regenerateAvatarConfig");
     await userService.regenerateAvatarConfig(session.user.id);
+
     revalidatePath("/profile");
   };
 

@@ -84,13 +84,13 @@ import { ApiError, handleErrors } from "../../routes";
  *               $ref: '#/components/schemas/Error'
  */
 
-export async function GET(request: Request, context: { params: { id: string } }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     console.log("GET /bank-account/[id]/route.ts");
     const schema = z.object({
       id: z.string().cuid(),
     });
-    const parsedId = await validateEventHandler(schema, { id: context.params.id });
+    const parsedId = await validateEventHandler(schema, { id: (await context.params).id });
     if ("error" in parsedId) {
       return Response.json(parsedId, { status: 422 });
     }
@@ -124,14 +124,14 @@ export async function GET(request: Request, context: { params: { id: string } })
   }
 }
 
-export async function DELETE(request: Request, context: { params: { id: string } }) {
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const user = await checkUserAuthOrThrowError(request);
     if ("error" in user) {
       return Response.json(user, { status: 401 });
     }
     // First verify the user owns this account
-    const bankAccountResponse = await bankAccountService.getBankAccountById(context.params.id, user.id);
+    const bankAccountResponse = await bankAccountService.getBankAccountById((await context.params).id, user.id);
     if ("error" in bankAccountResponse) {
       return Response.json(bankAccountResponse, { status: 404 });
     }
@@ -146,7 +146,7 @@ export async function DELETE(request: Request, context: { params: { id: string }
       ]);
     }
 
-    const result = await bankAccountService.deleteBankAccount(context.params.id);
+    const result = await bankAccountService.deleteBankAccount((await context.params).id);
 
     if ("error" in result) {
       return Response.json(result);

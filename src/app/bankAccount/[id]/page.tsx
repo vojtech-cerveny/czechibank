@@ -23,7 +23,8 @@ type Session = {
   exp: number;
 };
 
-export default async function BankAccountPage({ params }: { params: { id: string } }) {
+export default async function BankAccountPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session: Session = await getSession();
 
   if (!session) {

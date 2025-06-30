@@ -33,13 +33,14 @@ export async function processUserSignIn({ email, password }: { email: string; pa
   user.apiKey = "";
 
   const expires = new Date(Date.now() + 60 * 60 * 24 * 10000);
+  // TODO: we don't set anything from the props in function :D We need to fix it.
   const session = await encrypt({ user, expires });
 
   // Save the session in a cookie
-  cookies().set("session", session, { expires, httpOnly: true });
+  (await cookies()).set("session", session, { expires, httpOnly: true });
   redirect("/");
 }
 
 export async function processUserSignOut() {
-  cookies().delete("session");
+  (await cookies()).delete("session");
 }

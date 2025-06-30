@@ -10,7 +10,6 @@ export function generateRandomAvatarConfig() {
   const options = {
     ...loreleiNeutral.schema.properties,
   };
-  console.log(options);
 
   function getRandomValues(options: any) {
     const result: { [key: string]: any } = {};
