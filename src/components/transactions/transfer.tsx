@@ -1,7 +1,7 @@
 "use client";
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import transactionService from "@/domain/transaction-domain/transaction-service";
+import { sendMoneyToBankNumberAction } from "@/domain/transaction-domain/transaction-action";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Prisma } from "@prisma/client";
 import { useForm } from "react-hook-form";
@@ -62,7 +62,7 @@ export function TransactionTranfer({
   });
 
   const action: () => void = form.handleSubmit(async (data) => {
-    const response = await transactionService.sendMoneyToBankNumber({
+    const response = await sendMoneyToBankNumberAction({
       amount: data.amount,
       currency: "CZECHITOKEN",
       fromBankNumber: bankAccountNumber,
@@ -86,6 +86,7 @@ export function TransactionTranfer({
     }
 
     form.resetField("amount");
+    form.resetField("toBankNumber");
   });
   return (
     <div className="flex flex-col gap-4">

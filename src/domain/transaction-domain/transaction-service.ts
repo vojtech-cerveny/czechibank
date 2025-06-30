@@ -1,3 +1,4 @@
+import env from "@/lib/env";
 import { ApiErrorCode, errorResponse, successResponse } from "@/lib/response";
 import { Currency } from "@prisma/client";
 import bankAccountService from "../bankAccount-domain/ba-service";
@@ -80,6 +81,7 @@ const transactionService = {
 
       // HARD-CODED DONATION NUMBER, who cares
       if (result.data.message.to.number == "555555555555/5555") {
+        console.log(env.DISCORD_WEBHOOK_URL);
         await sendDiscordMessage({
           text: `Money sent from account \`${result.data.message.from.number}\` - **${result.data.message.amount} ${result.data.message.currency}** :tada:`,
           message: "Money sent successfully!",
